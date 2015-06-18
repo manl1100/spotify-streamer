@@ -6,7 +6,6 @@
     <string name="artist_thumbnail">artist_thumbnail</string>
     <string name="artist_top_ten_thumbnail">track_thumbnail</string>
     <string name="title_activity_artist_top_ten">Top Ten Tracks</string>
-    <string name="hello_world">Hello world!</string>
     <string name="title_activity_music_player">Media Player</string>
 
 </resources>
