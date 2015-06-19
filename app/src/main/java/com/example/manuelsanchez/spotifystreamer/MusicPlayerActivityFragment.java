@@ -72,8 +72,10 @@ public class MusicPlayerActivityFragment extends Fragment {
     @Override
     public void onStop() {
         super.onStop();
-        mMediaPlayer.release();
-        mMediaPlayer = null;
+        if (mMediaPlayer != null) {
+            mMediaPlayer.release();
+            mMediaPlayer = null;
+        }
     }
 
     private View.OnClickListener onPlayClickListener() {
