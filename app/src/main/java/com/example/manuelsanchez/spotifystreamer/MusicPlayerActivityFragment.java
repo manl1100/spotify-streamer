@@ -19,7 +19,7 @@ import java.io.IOException;
 
 
 
-public class MusicPlayerActivityFragment extends Fragment implements MediaPlayer.OnPreparedListener {
+public class MusicPlayerActivityFragment extends Fragment {
 
     private static final String LOG_TAG = MusicPlayerActivityFragment.class.getSimpleName();
 
@@ -70,8 +70,10 @@ public class MusicPlayerActivityFragment extends Fragment implements MediaPlayer
     }
 
     @Override
-    public void onPrepared(MediaPlayer mediaPlayer) {
-
+    public void onStop() {
+        super.onStop();
+        mMediaPlayer.release();
+        mMediaPlayer = null;
     }
 
     private View.OnClickListener onPlayClickListener() {
