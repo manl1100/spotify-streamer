@@ -56,6 +56,12 @@ public class MusicPlayerActivityFragment extends Fragment {
         TextView trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
         trackTextView.setText(mTrack.getTrack());
 
+        TextView elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
+        elapsed.setText("0:00");
+
+        TextView remaining = (TextView) musicPlayerView.findViewById(R.id.time_remaining);
+        remaining.setText("0:30");
+
         SeekBar seekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
 
         Button rewind = (Button) musicPlayerView.findViewById(R.id.rewind);

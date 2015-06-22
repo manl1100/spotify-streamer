@@ -1,0 +1,27 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:orientation="horizontal"
+    android:baselineAligned="false">
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fragment_search"
+        android:name="com.example.manuelsanchez.spotifystreamer.ArtistSearchFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        tools:layout="@layout/fragment_artist_search"
+        android:layout_weight="1" />
+
+    <fragment xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:tools="http://schemas.android.com/tools"
+        android:id="@+id/fragment_top_tracks"
+        android:name="com.example.manuelsanchez.spotifystreamer.ArtistTopTracksFragment"
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:layout_weight="5"
+        tools:layout="@layout/fragment_artist_top_ten" />
+
+
+</LinearLayout>

@@ -23,8 +23,13 @@ public class ArtistSearchFragment extends Fragment {
 
     private ArtistSearchListAdapter mArtistListAdapter = null;
 
+    private OnArtistSelectedListener mOnArtistSelectedListener;
 
     public ArtistSearchFragment() {
+    }
+
+    public interface OnArtistSelectedListener {
+        void onArtistSelected();
     }
 
     @Override
@@ -51,6 +56,10 @@ public class ArtistSearchFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(ARTIST_ITEMS, mArtistListAdapter.getItems());
+    }
+
+    public void setmOnArtistSelectedListener(OnArtistSelectedListener mOnArtistSelectedListener) {
+        this.mOnArtistSelectedListener = mOnArtistSelectedListener;
     }
 
     private AdapterView.OnItemClickListener artistOnClickListener() {
