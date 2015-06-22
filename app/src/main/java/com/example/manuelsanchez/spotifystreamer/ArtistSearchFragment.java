@@ -29,7 +29,7 @@ public class ArtistSearchFragment extends Fragment {
     }
 
     public interface OnArtistSelectedListener {
-        void onArtistSelected();
+        void onArtistSelected(String artistId);
     }
 
     @Override
@@ -58,7 +58,7 @@ public class ArtistSearchFragment extends Fragment {
         outState.putParcelableArrayList(ARTIST_ITEMS, mArtistListAdapter.getItems());
     }
 
-    public void setmOnArtistSelectedListener(OnArtistSelectedListener mOnArtistSelectedListener) {
+    public void setOnArtistSelectedListener(OnArtistSelectedListener mOnArtistSelectedListener) {
         this.mOnArtistSelectedListener = mOnArtistSelectedListener;
     }
 
@@ -67,9 +67,7 @@ public class ArtistSearchFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArtistSearchItem selectedArtist = (ArtistSearchItem) ((ListView) parent).getAdapter().getItem(position);
-                Intent intent = new Intent(getActivity(), ArtistTopTracksActivity.class);
-                intent.putExtra(SELECTED_ARTIST_ID, selectedArtist.getArtistId());
-                startActivity(intent);
+                mOnArtistSelectedListener.onArtistSelected(selectedArtist.getArtistId());
             }
         };
     }

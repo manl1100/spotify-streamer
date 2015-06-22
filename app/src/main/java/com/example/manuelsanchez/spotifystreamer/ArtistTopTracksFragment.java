@@ -50,6 +50,10 @@ public class ArtistTopTracksFragment extends Fragment {
         outState.putParcelableArrayList(TRACK_ITEMS, mArtistTopTracksListAdapter.getItems());
     }
 
+    public void displayArtistTracks(String artistId) {
+        new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(artistId);
+    }
+
     private AdapterView.OnItemClickListener trackSelectionOnClickListener() {
         return new AdapterView.OnItemClickListener() {
             @Override
