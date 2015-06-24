@@ -76,7 +76,7 @@ public class ArtistSearchFragment extends Fragment {
         return new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView searchInput, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_DONE) {
+                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
                     if (searchInput.getText().length() > 0) {
                         new ArtistSearchTask(mArtistListAdapter).execute(searchInput.getText().toString());
                     }
