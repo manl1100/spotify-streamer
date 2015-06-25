@@ -17,7 +17,6 @@
         android:id="@+id/artist_name"
         android:layout_width="0dp"
         android:layout_height="match_parent"
-        android:layout_margin="20dp"
         android:layout_weight="1"
         android:gravity="center_vertical"
         android:textSize="15sp" />
