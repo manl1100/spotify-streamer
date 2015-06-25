@@ -1,9 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
-    android:layout_width="wrap_content"
-    android:layout_height="wrap_content"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:baselineAligned="false"
     android:orientation="horizontal"
-    android:baselineAligned="false">
+    android:weightSum="8">
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -11,8 +12,9 @@
         android:name="com.example.manuelsanchez.spotifystreamer.ArtistSearchFragment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
-        tools:layout="@layout/fragment_artist_search"
-        android:layout_weight="1" />
+        android:layout_margin="10dp"
+        android:layout_weight="3"
+        tools:layout="@layout/fragment_artist_search" />
 
     <fragment xmlns:android="http://schemas.android.com/apk/res/android"
         xmlns:tools="http://schemas.android.com/tools"
@@ -20,6 +22,7 @@
         android:name="com.example.manuelsanchez.spotifystreamer.ArtistTopTracksFragment"
         android:layout_width="0dp"
         android:layout_height="wrap_content"
+        android:layout_margin="10dp"
         android:layout_weight="5"
         tools:layout="@layout/fragment_artist_top_ten" />
 
