@@ -1,13 +1,13 @@
 package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Activity;
-import android.app.Fragment;
+import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
-import android.widget.ListView;
 
-public class ArtistSearchActivity extends Activity implements ArtistSearchFragment.OnArtistSelectedListener {
+public class ArtistSearchActivity extends Activity
+        implements ArtistSearchFragment.OnArtistSelectedListener, ArtistTopTracksFragment.OnTrackSelectedListener {
 
     private ArtistSearchFragment mSearchActivity;
     private ArtistTopTracksFragment mTopTrackActivity;
@@ -24,6 +24,9 @@ public class ArtistSearchActivity extends Activity implements ArtistSearchFragme
         View topTrackView = findViewById(R.id.fragment_top_tracks);
         mIsTwoPane = topTrackView != null && topTrackView.getVisibility() == View.VISIBLE;
 
+        if (mIsTwoPane) {
+            mTopTrackActivity.setOnTrackSelectedListener(this);
+        }
         mSearchActivity.setOnArtistSelectedListener(this);
 
     }
@@ -40,4 +43,15 @@ public class ArtistSearchActivity extends Activity implements ArtistSearchFragme
 
     }
 
+    @Override
+    public void onTrackSelected(ArtistTopTrackItem track) {
+        Bundle bundle = new Bundle();
+        bundle.putParcelable(ArtistTopTracksFragment.TRACK, track);
+
+        FragmentManager fragmentManager = getFragmentManager();
+        MusicPlayerFragment musicPlayer = new MusicPlayerFragment();
+        musicPlayer.setArguments(bundle);
+
+        musicPlayer.show(fragmentManager, "dialog");
+    }
 }

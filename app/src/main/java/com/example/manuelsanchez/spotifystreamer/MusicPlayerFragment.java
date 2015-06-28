@@ -1,6 +1,7 @@
 package com.example.manuelsanchez.spotifystreamer;
 
-import android.app.Fragment;
+import android.app.Dialog;
+import android.app.DialogFragment;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -8,6 +9,7 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.view.Window;
 import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
@@ -18,21 +20,30 @@ import com.squareup.picasso.Picasso;
 import java.io.IOException;
 
 
+public class MusicPlayerFragment extends DialogFragment {
 
-public class MusicPlayerActivityFragment extends Fragment {
-
-    private static final String LOG_TAG = MusicPlayerActivityFragment.class.getSimpleName();
+    private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
     private MediaPlayer mMediaPlayer;
     private ArtistTopTrackItem mTrack;
 
-    public MusicPlayerActivityFragment() {
+    public MusicPlayerFragment() {
+    }
+
+    @Override
+    public Dialog onCreateDialog(Bundle savedInstanceState) {
+        Dialog dialog = super.onCreateDialog(savedInstanceState);
+        dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
+        return dialog;
     }
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-         mTrack = getActivity().getIntent().getParcelableExtra(ArtistTopTracksFragment.TRACK);
+        mTrack = getActivity().getIntent().getParcelableExtra(ArtistTopTracksFragment.TRACK);
+        if (mTrack == null) {
+            mTrack = getArguments().getParcelable(ArtistTopTracksFragment.TRACK);
+        }
     }
 
     @Override
@@ -98,7 +109,7 @@ public class MusicPlayerActivityFragment extends Fragment {
                     } catch (IOException e) {
                         Log.e(LOG_TAG, "MediaPlayer error: " + e.getMessage());
                     }
-                } else if (mMediaPlayer.isPlaying()){
+                } else if (mMediaPlayer.isPlaying()) {
                     mMediaPlayer.pause();
                 } else {
                     mMediaPlayer.start();

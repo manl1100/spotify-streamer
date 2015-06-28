@@ -19,8 +19,13 @@ public class ArtistTopTracksFragment extends Fragment {
 
     ArtistTopTracksListAdapter mArtistTopTracksListAdapter = null;
 
+    private OnTrackSelectedListener mOnTrackSelectedListener;
 
     public ArtistTopTracksFragment() {
+    }
+
+    public interface OnTrackSelectedListener {
+        void onTrackSelected(ArtistTopTrackItem artistTrack);
     }
 
     @Override
@@ -50,6 +55,10 @@ public class ArtistTopTracksFragment extends Fragment {
         outState.putParcelableArrayList(TRACK_ITEMS, mArtistTopTracksListAdapter.getItems());
     }
 
+    public void setOnTrackSelectedListener(OnTrackSelectedListener mOnTrackSelectedListener) {
+        this.mOnTrackSelectedListener = mOnTrackSelectedListener;
+    }
+
     public void displayArtistTracks(String artistId) {
         new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(artistId);
     }
@@ -59,9 +68,13 @@ public class ArtistTopTracksFragment extends Fragment {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArtistTopTrackItem selectedTrack = (ArtistTopTrackItem) ((ListView) parent).getAdapter().getItem(position);
-                Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
-                intent.putExtra(TRACK, selectedTrack);
-                startActivity(intent);
+                if (mOnTrackSelectedListener != null) {
+                    mOnTrackSelectedListener.onTrackSelected(selectedTrack);
+                } else {
+                    Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
+                    intent.putExtra(TRACK, selectedTrack);
+                    startActivity(intent);
+                }
             }
         };
     }
