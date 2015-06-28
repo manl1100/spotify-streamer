@@ -41,26 +41,25 @@
         android:layout_width="match_parent"
         android:layout_height="wrap_content" />
 
-    <LinearLayout
+    <RelativeLayout
         android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:layout_weight="1"
-        android:orientation="horizontal"
-        android:padding="20dp">
+        android:layout_height="wrap_content">
 
         <TextView
             android:id="@+id/time_elapse"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:layout_gravity="start" />
+            android:layout_alignParentLeft="true"
+            android:gravity="center_vertical" />
 
         <TextView
             android:id="@+id/time_remaining"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:layout_alignParentRight="true"
             android:layout_gravity="end" />
 
-    </LinearLayout>
+    </RelativeLayout>
 
 
     <LinearLayout
