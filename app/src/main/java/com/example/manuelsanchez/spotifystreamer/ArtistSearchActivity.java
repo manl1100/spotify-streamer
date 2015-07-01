@@ -10,6 +10,7 @@ import android.os.IBinder;
 import android.view.View;
 
 import java.util.ArrayList;
+import java.util.Arrays;
 
 public class ArtistSearchActivity extends Activity
         implements ArtistSearchFragment.OnArtistSelectedListener, ArtistTopTracksFragment.OnTrackSelectedListener {
@@ -22,21 +23,6 @@ public class ArtistSearchActivity extends Activity
     private Intent playIntent;
     private boolean musicPlayerBound = false;
 
-
-    private ServiceConnection mMusicPlayerServiceConnection = new ServiceConnection() {
-        @Override
-        public void onServiceConnected(ComponentName componentName, IBinder iBinder) {
-            MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) iBinder;
-            mMusicPlayerService = binder.getService();
-            mMusicPlayerService.setTracks(new ArrayList<ArtistTopTrackItem>());
-            musicPlayerBound = true;
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName componentName) {
-            musicPlayerBound = false;
-        }
-    };
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -78,5 +64,11 @@ public class ArtistSearchActivity extends Activity
         musicPlayer.setArguments(bundle);
 
         musicPlayer.show(fragmentManager, "dialog");
+
+        Intent intent = new Intent(getApplicationContext(), MusicPlayerService.class);
+        ArrayList<ArtistTopTrackItem> trackList = new ArrayList<>();
+        trackList.add(track);
+        intent.putParcelableArrayListExtra("TRACK", trackList);
+        startService(intent);
     }
 }
