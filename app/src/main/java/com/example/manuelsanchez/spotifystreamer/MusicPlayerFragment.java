@@ -4,10 +4,8 @@ import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
-import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,10 +14,10 @@ import android.widget.Button;
 import android.widget.ImageView;
 import android.widget.SeekBar;
 import android.widget.TextView;
+import android.widget.ToggleButton;
 
 import com.squareup.picasso.Picasso;
 
-import java.io.IOException;
 import java.util.ArrayList;
 
 
@@ -27,7 +25,6 @@ public class MusicPlayerFragment extends DialogFragment {
 
     private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
-    private MediaPlayer mMediaPlayer;
     private ArtistTopTrackItem mTrack;
     Context mContext;
 
@@ -83,41 +80,30 @@ public class MusicPlayerFragment extends DialogFragment {
         Button rewind = (Button) musicPlayerView.findViewById(R.id.rewind);
 
         Button pause = (Button) musicPlayerView.findViewById(R.id.pause);
-        pause.setOnClickListener(onPlayClickListener());
+        pause.setOnClickListener(onPlayPauseClickListener());
 
         Button forward = (Button) musicPlayerView.findViewById(R.id.forward);
 
         return musicPlayerView;
     }
 
-    @Override
-    public void onStop() {
-        super.onStop();
-        if (mMediaPlayer != null) {
-            mMediaPlayer.release();
-            mMediaPlayer = null;
-        }
-    }
-
-    private View.OnClickListener onPlayClickListener() {
+    private View.OnClickListener onPlayPauseClickListener() {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                Intent intent = new Intent(mContext, MusicPlayerService.class);
-                intent.setAction(MusicPlayerService.ACTION_PLAY);
-                ArrayList<ArtistTopTrackItem> trackList = new ArrayList<>();
-                trackList.add(mTrack);
-                intent.putParcelableArrayListExtra("TRACK", trackList);
-                mContext.startService(intent);
-            }
-        };
-    }
-
-    private MediaPlayer.OnPreparedListener onPreparedListener() {
-        return new MediaPlayer.OnPreparedListener() {
-            @Override
-            public void onPrepared(MediaPlayer mediaPlayer) {
-                mediaPlayer.start();
+                boolean isPlay = ((ToggleButton) view).isChecked();
+                if (isPlay) {
+                    Intent intent = new Intent(mContext, MusicPlayerService.class);
+                    intent.setAction(MusicPlayerService.ACTION_PLAY);
+                    ArrayList<ArtistTopTrackItem> trackList = new ArrayList<>();
+                    trackList.add(mTrack);
+                    intent.putParcelableArrayListExtra("TRACK", trackList);
+                    mContext.startService(intent);
+                } else {
+                    Intent intent = new Intent(mContext, MusicPlayerService.class);
+                    intent.setAction(MusicPlayerService.ACTION_PAUSE);
+                    mContext.startService(intent);
+                }
             }
         };
     }
