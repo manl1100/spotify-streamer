@@ -65,10 +65,5 @@ public class ArtistSearchActivity extends Activity
 
         musicPlayer.show(fragmentManager, "dialog");
 
-        Intent intent = new Intent(getApplicationContext(), MusicPlayerService.class);
-        ArrayList<ArtistTopTrackItem> trackList = new ArrayList<>();
-        trackList.add(track);
-        intent.putParcelableArrayListExtra("TRACK", trackList);
-        startService(intent);
     }
 }

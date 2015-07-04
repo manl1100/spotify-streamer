@@ -2,6 +2,8 @@ package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.Context;
+import android.content.Intent;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
 import android.os.Bundle;
@@ -18,6 +20,7 @@ import android.widget.TextView;
 import com.squareup.picasso.Picasso;
 
 import java.io.IOException;
+import java.util.ArrayList;
 
 
 public class MusicPlayerFragment extends DialogFragment {
@@ -26,6 +29,7 @@ public class MusicPlayerFragment extends DialogFragment {
 
     private MediaPlayer mMediaPlayer;
     private ArtistTopTrackItem mTrack;
+    Context mContext;
 
     public MusicPlayerFragment() {
     }
@@ -44,6 +48,7 @@ public class MusicPlayerFragment extends DialogFragment {
         if (mTrack == null) {
             mTrack = getArguments().getParcelable(ArtistTopTracksFragment.TRACK);
         }
+        mContext = getActivity().getApplicationContext();
     }
 
     @Override
@@ -82,7 +87,6 @@ public class MusicPlayerFragment extends DialogFragment {
 
         Button forward = (Button) musicPlayerView.findViewById(R.id.forward);
 
-
         return musicPlayerView;
     }
 
@@ -99,22 +103,12 @@ public class MusicPlayerFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
-                if (mMediaPlayer == null) {
-                    try {
-                        mMediaPlayer = new MediaPlayer();
-                        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                        mMediaPlayer.setDataSource(mTrack.getPreviewUrl());
-                        mMediaPlayer.setOnPreparedListener(onPreparedListener());
-                        mMediaPlayer.prepareAsync();
-                    } catch (IOException e) {
-                        Log.e(LOG_TAG, "MediaPlayer error: " + e.getMessage());
-                    }
-                } else if (mMediaPlayer.isPlaying()) {
-                    mMediaPlayer.pause();
-                } else {
-                    mMediaPlayer.start();
-                }
-
+                Intent intent = new Intent(mContext, MusicPlayerService.class);
+                intent.setAction(MusicPlayerService.ACTION_PLAY);
+                ArrayList<ArtistTopTrackItem> trackList = new ArrayList<>();
+                trackList.add(mTrack);
+                intent.putParcelableArrayListExtra("TRACK", trackList);
+                mContext.startService(intent);
             }
         };
     }
