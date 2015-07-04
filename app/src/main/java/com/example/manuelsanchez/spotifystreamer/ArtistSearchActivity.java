@@ -55,9 +55,9 @@ public class ArtistSearchActivity extends Activity
     }
 
     @Override
-    public void onTrackSelected(ArtistTopTrackItem track) {
+    public void onTrackSelected(ArrayList<ArtistTopTrackItem> tracks) {
         Bundle bundle = new Bundle();
-        bundle.putParcelable(ArtistTopTracksFragment.TRACK, track);
+        bundle.putParcelableArrayList(ArtistTopTracksFragment.TRACK, tracks);
 
         FragmentManager fragmentManager = getFragmentManager();
         MusicPlayerFragment musicPlayer = new MusicPlayerFragment();

@@ -25,7 +25,7 @@ public class MusicPlayerFragment extends DialogFragment {
 
     private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
-    private ArtistTopTrackItem mTrack;
+    private ArrayList<ArtistTopTrackItem> mTracks;
     Context mContext;
 
     public MusicPlayerFragment() {
@@ -41,9 +41,9 @@ public class MusicPlayerFragment extends DialogFragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTrack = getActivity().getIntent().getParcelableExtra(ArtistTopTracksFragment.TRACK);
-        if (mTrack == null) {
-            mTrack = getArguments().getParcelable(ArtistTopTracksFragment.TRACK);
+        mTracks = getActivity().getIntent().getParcelableArrayListExtra(ArtistTopTracksFragment.TRACK);
+        if (mTracks == null) {
+            mTracks = getArguments().getParcelableArrayList(ArtistTopTracksFragment.TRACK);
         }
         mContext = getActivity().getApplicationContext();
     }
@@ -54,20 +54,20 @@ public class MusicPlayerFragment extends DialogFragment {
 
 
         TextView artistTextView = (TextView) musicPlayerView.findViewById(R.id.artist_title);
-        artistTextView.setText(mTrack.getArtist());
+        artistTextView.setText(mTracks.get(0).getArtist());
 
         TextView albumTextView = (TextView) musicPlayerView.findViewById(R.id.artist_album);
-        albumTextView.setText(mTrack.getAlbum());
+        albumTextView.setText(mTracks.get(0).getAlbum());
 
         ImageView albumCover = (ImageView) musicPlayerView.findViewById(R.id.artist_album_cover);
         Picasso.with(getActivity())
-                .load(mTrack.getImageUrl())
+                .load(mTracks.get(0).getImageUrl())
                 .placeholder(R.drawable.ic_audiotrack_black_48dp)
                 .error(R.drawable.ic_audiotrack_black_48dp)
                 .into(albumCover);
 
         TextView trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
-        trackTextView.setText(mTrack.getTrack());
+        trackTextView.setText(mTracks.get(0).getTrack());
 
         TextView elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
         elapsed.setText("0:00");
@@ -78,11 +78,13 @@ public class MusicPlayerFragment extends DialogFragment {
         SeekBar seekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
 
         Button rewind = (Button) musicPlayerView.findViewById(R.id.rewind);
+        rewind.setOnClickListener(onPreviousTrackClickListener());
 
         Button pause = (Button) musicPlayerView.findViewById(R.id.pause);
         pause.setOnClickListener(onPlayPauseClickListener());
 
         Button forward = (Button) musicPlayerView.findViewById(R.id.forward);
+        forward.setOnClickListener(onNextTrackClickListener());
 
         return musicPlayerView;
     }
@@ -95,15 +97,35 @@ public class MusicPlayerFragment extends DialogFragment {
                 if (isPlay) {
                     Intent intent = new Intent(mContext, MusicPlayerService.class);
                     intent.setAction(MusicPlayerService.ACTION_PLAY);
-                    ArrayList<ArtistTopTrackItem> trackList = new ArrayList<>();
-                    trackList.add(mTrack);
-                    intent.putParcelableArrayListExtra("TRACK", trackList);
+                    intent.putParcelableArrayListExtra("TRACK", mTracks);
                     mContext.startService(intent);
                 } else {
                     Intent intent = new Intent(mContext, MusicPlayerService.class);
                     intent.setAction(MusicPlayerService.ACTION_PAUSE);
                     mContext.startService(intent);
                 }
+            }
+        };
+    }
+
+    private View.OnClickListener onNextTrackClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, MusicPlayerService.class);
+                intent.setAction(MusicPlayerService.ACTION_NEXT);
+                mContext.startService(intent);
+            }
+        };
+    }
+
+    private View.OnClickListener onPreviousTrackClickListener() {
+        return new View.OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                Intent intent = new Intent(mContext, MusicPlayerService.class);
+                intent.setAction(MusicPlayerService.ACTION_PREV);
+                mContext.startService(intent);
             }
         };
     }

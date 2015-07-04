@@ -25,7 +25,7 @@ public class ArtistTopTracksFragment extends Fragment {
     }
 
     public interface OnTrackSelectedListener {
-        void onTrackSelected(ArtistTopTrackItem artistTrack);
+        void onTrackSelected(ArrayList<ArtistTopTrackItem> artistTracks);
     }
 
     @Override
@@ -67,12 +67,12 @@ public class ArtistTopTracksFragment extends Fragment {
         return new AdapterView.OnItemClickListener() {
             @Override
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ArtistTopTrackItem selectedTrack = (ArtistTopTrackItem) ((ListView) parent).getAdapter().getItem(position);
+                ArrayList<ArtistTopTrackItem> artistTracks = mArtistTopTracksListAdapter.getItems();
                 if (mOnTrackSelectedListener != null) {
-                    mOnTrackSelectedListener.onTrackSelected(selectedTrack);
+                    mOnTrackSelectedListener.onTrackSelected(artistTracks);
                 } else {
                     Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
-                    intent.putExtra(TRACK, selectedTrack);
+                    intent.putExtra(TRACK, artistTracks);
                     startActivity(intent);
                 }
             }

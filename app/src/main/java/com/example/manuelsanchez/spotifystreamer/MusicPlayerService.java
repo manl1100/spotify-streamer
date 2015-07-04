@@ -24,7 +24,8 @@ import java.util.concurrent.TimeUnit;
 
 
 public class MusicPlayerService extends Service
-        implements MediaPlayer.OnPreparedListener, MediaPlayer.OnErrorListener, AudioManager.OnAudioFocusChangeListener {
+        implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
 
     private static final String LOG_TAG = MusicPlayerService.class.getSimpleName();
@@ -36,7 +37,7 @@ public class MusicPlayerService extends Service
     public static final int MUSIC_PLAYER_SERVICE = 111;
     private MediaPlayer mMediaPlayer;
     private ArrayList<ArtistTopTrackItem> mTracks;
-    private int mCurrentSong;
+    private int mCurrentSong = 0;
 
 
     @Override
@@ -61,7 +62,7 @@ public class MusicPlayerService extends Service
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(ACTION_PLAY)) {
 
-            ArrayList<ArtistTopTrackItem> trackList = intent.getParcelableArrayListExtra("TRACK");
+            mTracks = intent.getParcelableArrayListExtra("TRACK");
 
             Intent notificationIntent = new Intent(this, ArtistSearchActivity.class);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
@@ -80,11 +81,11 @@ public class MusicPlayerService extends Service
 
             Notification notification = new Notification.Builder(this)
                     .setStyle(new Notification.MediaStyle())
-                    .setContentTitle(trackList.get(0).getTrack())
+                    .setContentTitle(mTracks.get(mCurrentSong).getTrack())
                     .setTicker("Spotify Streamer")
-                    .setContentText(trackList.get(0).getArtist())
+                    .setContentText(mTracks.get(mCurrentSong).getArtist())
                     .setSmallIcon(R.drawable.ic_play_arrow_black_48dp)
-                    .setLargeIcon(loadBitMap(trackList.get(0).getImageUrl()))
+                    .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
                     .setContentIntent(pendingIntent)
                     .setOngoing(true)
                     .addAction(R.drawable.ic_skip_previous_black_48dp, "", pendingPreviousIntent)
@@ -95,7 +96,7 @@ public class MusicPlayerService extends Service
 
             try {
                 mMediaPlayer = new MediaPlayer();
-                mMediaPlayer.setDataSource(trackList.get(0).getPreviewUrl());
+                mMediaPlayer.setDataSource(mTracks.get(mCurrentSong).getPreviewUrl());
                 mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
 
                 mMediaPlayer.setOnPreparedListener(this);
@@ -112,13 +113,44 @@ public class MusicPlayerService extends Service
             }
 
         } else if (intent.getAction().equals(ACTION_NEXT)) {
-            Toast.makeText(getApplicationContext(), "Next", Toast.LENGTH_LONG).show();
+            mCurrentSong = mCurrentSong == mTracks.size() - 1 ? mCurrentSong : ++mCurrentSong;
+            try {
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(mTracks.get(mCurrentSong).getPreviewUrl());
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mMediaPlayer.setOnPreparedListener(this);
+                mMediaPlayer.setOnErrorListener(this);
+                mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+                WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+                        .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+
+                wifiLock.acquire();
+                mMediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Media Player error");
+
+            }
 
         } else if (intent.getAction().equals(ACTION_PREV)) {
-            Toast.makeText(getApplicationContext(), "Previous", Toast.LENGTH_LONG).show();
+            mCurrentSong = mCurrentSong == 0 ? mCurrentSong : --mCurrentSong;
+            try {
+                mMediaPlayer.reset();
+                mMediaPlayer.setDataSource(mTracks.get(mCurrentSong).getPreviewUrl());
+                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+                mMediaPlayer.setOnPreparedListener(this);
+                mMediaPlayer.setOnErrorListener(this);
+                mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+                WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+                        .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+
+                wifiLock.acquire();
+                mMediaPlayer.prepareAsync();
+            } catch (Exception e) {
+                Log.e(LOG_TAG, "Media Player error");
+
+            }
 
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
-            Toast.makeText(getApplicationContext(), "Stop", Toast.LENGTH_LONG).show();
             mMediaPlayer.pause();
         }
 
@@ -140,14 +172,6 @@ public class MusicPlayerService extends Service
     @Override
     public void onDestroy() {
         if (mMediaPlayer != null) mMediaPlayer.release();
-    }
-
-    public void setTracks(ArrayList<ArtistTopTrackItem> mTracks) {
-        this.mTracks = mTracks;
-    }
-
-    public void setCurrentSong(int mCurrentSong) {
-        this.mCurrentSong = mCurrentSong;
     }
 
     @Override
@@ -212,6 +236,11 @@ public class MusicPlayerService extends Service
 
         return bitmap;
 
+    }
+
+    @Override
+    public void onCompletion(MediaPlayer mediaPlayer) {
+        this.stopSelf();
     }
 
     public class MusicPlayerBinder extends Binder {

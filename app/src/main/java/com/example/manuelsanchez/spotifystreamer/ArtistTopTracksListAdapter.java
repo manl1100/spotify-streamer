@@ -58,7 +58,7 @@ public class ArtistTopTracksListAdapter extends ArrayAdapter<ArtistTopTrackItem>
         return convertView;
     }
 
-    public ArrayList<? extends Parcelable> getItems() {
+    public ArrayList<ArtistTopTrackItem> getItems() {
         return mTopTrack;
     }
 
