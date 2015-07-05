@@ -19,11 +19,6 @@ public class ArtistSearchActivity extends Activity
     private ArtistTopTracksFragment mTopTrackActivity;
     private boolean mIsTwoPane;
 
-    private MusicPlayerService mMusicPlayerService;
-    private Intent playIntent;
-    private boolean musicPlayerBound = false;
-
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
