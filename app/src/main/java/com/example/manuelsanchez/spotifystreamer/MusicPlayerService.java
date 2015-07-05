@@ -1,6 +1,7 @@
 package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Notification;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
@@ -15,7 +16,6 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.squareup.picasso.Picasso;
 
@@ -39,10 +39,32 @@ public class MusicPlayerService extends Service
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentSong = 0;
 
+    private PendingIntent mPendingActivityIntent;
+    private PendingIntent mPendingPauseIntent;
+    private PendingIntent mPendingNextIntent;
+    private PendingIntent mPendingPreviousIntent;
+
 
     @Override
     public void onCreate() {
         super.onCreate();
+        Intent notificationIntent = new Intent(this, ArtistSearchActivity.class);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        mPendingActivityIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
+
+        Intent previousIntent = new Intent(this, MusicPlayerService.class);
+        previousIntent.setAction(ACTION_PREV);
+        mPendingPreviousIntent = PendingIntent.getService(this, 0, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent nextIntent = new Intent(this, MusicPlayerService.class);
+        nextIntent.setAction(ACTION_NEXT);
+        mPendingNextIntent = PendingIntent.getService(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent pauseIntent = new Intent(this, MusicPlayerService.class);
+        pauseIntent.setAction(ACTION_PAUSE);
+        mPendingPauseIntent = PendingIntent.getService(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
     }
 
     @Override
@@ -63,21 +85,24 @@ public class MusicPlayerService extends Service
         if (intent.getAction().equals(ACTION_PLAY)) {
 
             mTracks = intent.getParcelableArrayListExtra("TRACK");
+            mCurrentSong = intent.getIntExtra("TRACK_INDEX", 0);
 
             Intent notificationIntent = new Intent(this, ArtistSearchActivity.class);
+            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
+                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
             PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
             Intent previousIntent = new Intent(this, MusicPlayerService.class);
             previousIntent.setAction(ACTION_PREV);
-            PendingIntent pendingPreviousIntent = PendingIntent.getActivity(this, 0, previousIntent, 0);
+            PendingIntent pendingPreviousIntent = PendingIntent.getService(this, 0, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Intent nextIntent = new Intent(this, MusicPlayerService.class);
-            previousIntent.setAction(ACTION_NEXT);
-            PendingIntent pendingNextIntent = PendingIntent.getActivity(this, 0, nextIntent, 0);
+            nextIntent.setAction(ACTION_NEXT);
+            PendingIntent pendingNextIntent = PendingIntent.getService(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Intent stopIntent = new Intent(this, MusicPlayerService.class);
-            previousIntent.setAction(ACTION_PAUSE);
-            PendingIntent pendingStopIntent = PendingIntent.getActivity(this, 0, stopIntent, 0);
+            stopIntent.setAction(ACTION_PAUSE);
+            PendingIntent pendingStopIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             Notification notification = new Notification.Builder(this)
                     .setStyle(new Notification.MediaStyle())
@@ -90,9 +115,13 @@ public class MusicPlayerService extends Service
                     .setOngoing(true)
                     .addAction(R.drawable.ic_skip_previous_black_48dp, "", pendingPreviousIntent)
                     .addAction(R.drawable.ic_play_arrow_black_48dp, "", pendingStopIntent)
-                    .addAction(R.drawable.ic_skip_next_black_48dp, "", pendingNextIntent).build();
+                    .addAction(R.drawable.ic_skip_next_black_48dp, "", pendingNextIntent)
+                    .build();
             startForeground(MUSIC_PLAYER_SERVICE, notification);
 
+            NotificationManager mNotificationManager =
+                    (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+            mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
 
             try {
                 mMediaPlayer = new MediaPlayer();
@@ -205,6 +234,10 @@ public class MusicPlayerService extends Service
                 break;
         }
     }
+
+//    private Notification createMediaNotification() {
+//
+//    }
 
     private Bitmap loadBitMap(final String imageUrl) {
         Bitmap bitmap = null;

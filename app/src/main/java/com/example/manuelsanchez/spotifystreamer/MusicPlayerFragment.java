@@ -26,6 +26,7 @@ public class MusicPlayerFragment extends DialogFragment {
     private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
     private ArrayList<ArtistTopTrackItem> mTracks;
+    private int mCurrentTrackIndex;
     Context mContext;
 
     public MusicPlayerFragment() {
@@ -42,8 +43,10 @@ public class MusicPlayerFragment extends DialogFragment {
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTracks = getActivity().getIntent().getParcelableArrayListExtra(ArtistTopTracksFragment.TRACK);
+        mCurrentTrackIndex = getActivity().getIntent().getIntExtra(ArtistTopTracksFragment.TRACK_INDEX, 0);
         if (mTracks == null) {
             mTracks = getArguments().getParcelableArrayList(ArtistTopTracksFragment.TRACK);
+            mCurrentTrackIndex = getArguments().getInt(ArtistTopTracksFragment.TRACK_INDEX);
         }
         mContext = getActivity().getApplicationContext();
     }
@@ -54,20 +57,20 @@ public class MusicPlayerFragment extends DialogFragment {
 
 
         TextView artistTextView = (TextView) musicPlayerView.findViewById(R.id.artist_title);
-        artistTextView.setText(mTracks.get(0).getArtist());
+        artistTextView.setText(mTracks.get(mCurrentTrackIndex).getArtist());
 
         TextView albumTextView = (TextView) musicPlayerView.findViewById(R.id.artist_album);
-        albumTextView.setText(mTracks.get(0).getAlbum());
+        albumTextView.setText(mTracks.get(mCurrentTrackIndex).getAlbum());
 
         ImageView albumCover = (ImageView) musicPlayerView.findViewById(R.id.artist_album_cover);
         Picasso.with(getActivity())
-                .load(mTracks.get(0).getImageUrl())
+                .load(mTracks.get(mCurrentTrackIndex).getImageUrl())
                 .placeholder(R.drawable.ic_audiotrack_black_48dp)
                 .error(R.drawable.ic_audiotrack_black_48dp)
                 .into(albumCover);
 
         TextView trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
-        trackTextView.setText(mTracks.get(0).getTrack());
+        trackTextView.setText(mTracks.get(mCurrentTrackIndex).getTrack());
 
         TextView elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
         elapsed.setText("0:00");
@@ -98,6 +101,7 @@ public class MusicPlayerFragment extends DialogFragment {
                     Intent intent = new Intent(mContext, MusicPlayerService.class);
                     intent.setAction(MusicPlayerService.ACTION_PLAY);
                     intent.putParcelableArrayListExtra("TRACK", mTracks);
+                    intent.getIntExtra("TRACK_INDEX", mCurrentTrackIndex);
                     mContext.startService(intent);
                 } else {
                     Intent intent = new Intent(mContext, MusicPlayerService.class);

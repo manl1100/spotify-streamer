@@ -15,6 +15,7 @@ import java.util.ArrayList;
 public class ArtistTopTracksFragment extends Fragment {
 
     public static final String TRACK = "selected_track";
+    public static final String TRACK_INDEX = "selected_track_index";
     public static final String TRACK_ITEMS = "track_items";
 
     ArtistTopTracksListAdapter mArtistTopTracksListAdapter = null;
@@ -25,7 +26,7 @@ public class ArtistTopTracksFragment extends Fragment {
     }
 
     public interface OnTrackSelectedListener {
-        void onTrackSelected(ArrayList<ArtistTopTrackItem> artistTracks);
+        void onTrackSelected(ArrayList<ArtistTopTrackItem> artistTracks, int trackIndex);
     }
 
     @Override
@@ -69,10 +70,11 @@ public class ArtistTopTracksFragment extends Fragment {
             public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
                 ArrayList<ArtistTopTrackItem> artistTracks = mArtistTopTracksListAdapter.getItems();
                 if (mOnTrackSelectedListener != null) {
-                    mOnTrackSelectedListener.onTrackSelected(artistTracks);
+                    mOnTrackSelectedListener.onTrackSelected(artistTracks, position);
                 } else {
                     Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
                     intent.putExtra(TRACK, artistTracks);
+                    intent.putExtra(TRACK_INDEX, position);
                     startActivity(intent);
                 }
             }
