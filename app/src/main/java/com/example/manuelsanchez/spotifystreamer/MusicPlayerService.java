@@ -39,6 +39,7 @@ public class MusicPlayerService extends Service
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentSong = 0;
 
+    NotificationManager mNotificationManager;
     private PendingIntent mPendingActivityIntent;
     private PendingIntent mPendingPauseIntent;
     private PendingIntent mPendingNextIntent;
@@ -65,19 +66,13 @@ public class MusicPlayerService extends Service
         pauseIntent.setAction(ACTION_PAUSE);
         mPendingPauseIntent = PendingIntent.getService(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
+
     }
 
     @Override
     public IBinder onBind(Intent intent) {
         return new MusicPlayerBinder();
-    }
-
-    public void initMediaPlayer() {
-        mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-        mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-        mMediaPlayer.setOnPreparedListener(this);
-        mMediaPlayer.setOnErrorListener(this);
     }
 
     @Override
@@ -87,98 +82,18 @@ public class MusicPlayerService extends Service
             mTracks = intent.getParcelableArrayListExtra("TRACK");
             mCurrentSong = intent.getIntExtra("TRACK_INDEX", 0);
 
-            Intent notificationIntent = new Intent(this, ArtistSearchActivity.class);
-            notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                    | Intent.FLAG_ACTIVITY_CLEAR_TASK);
-            PendingIntent pendingIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
-
-            Intent previousIntent = new Intent(this, MusicPlayerService.class);
-            previousIntent.setAction(ACTION_PREV);
-            PendingIntent pendingPreviousIntent = PendingIntent.getService(this, 0, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Intent nextIntent = new Intent(this, MusicPlayerService.class);
-            nextIntent.setAction(ACTION_NEXT);
-            PendingIntent pendingNextIntent = PendingIntent.getService(this, 0, nextIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Intent stopIntent = new Intent(this, MusicPlayerService.class);
-            stopIntent.setAction(ACTION_PAUSE);
-            PendingIntent pendingStopIntent = PendingIntent.getService(this, 0, stopIntent, PendingIntent.FLAG_UPDATE_CURRENT);
-
-            Notification notification = new Notification.Builder(this)
-                    .setStyle(new Notification.MediaStyle())
-                    .setContentTitle(mTracks.get(mCurrentSong).getTrack())
-                    .setTicker("Spotify Streamer")
-                    .setContentText(mTracks.get(mCurrentSong).getArtist())
-                    .setSmallIcon(R.drawable.ic_play_arrow_black_48dp)
-                    .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
-                    .setContentIntent(pendingIntent)
-                    .setOngoing(true)
-                    .addAction(R.drawable.ic_skip_previous_black_48dp, "", pendingPreviousIntent)
-                    .addAction(R.drawable.ic_play_arrow_black_48dp, "", pendingStopIntent)
-                    .addAction(R.drawable.ic_skip_next_black_48dp, "", pendingNextIntent)
-                    .build();
-            startForeground(MUSIC_PLAYER_SERVICE, notification);
-
-            NotificationManager mNotificationManager =
-                    (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-            mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
-
-            try {
-                mMediaPlayer = new MediaPlayer();
-                mMediaPlayer.setDataSource(mTracks.get(mCurrentSong).getPreviewUrl());
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-
-                mMediaPlayer.setOnPreparedListener(this);
-                mMediaPlayer.setOnErrorListener(this);
-
-                mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-                WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
-                        .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
-
-                wifiLock.acquire();
-                mMediaPlayer.prepareAsync(); // prepare async to not block main thread
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Media Player error");
-            }
+            createMediaNotification();
+            initializeMediaPlayer();
 
         } else if (intent.getAction().equals(ACTION_NEXT)) {
             mCurrentSong = mCurrentSong == mTracks.size() - 1 ? mCurrentSong : ++mCurrentSong;
-            try {
-                mMediaPlayer.reset();
-                mMediaPlayer.setDataSource(mTracks.get(mCurrentSong).getPreviewUrl());
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mMediaPlayer.setOnPreparedListener(this);
-                mMediaPlayer.setOnErrorListener(this);
-                mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-                WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
-                        .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
-
-                wifiLock.acquire();
-                mMediaPlayer.prepareAsync();
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Media Player error");
-
-            }
+            createMediaNotification();
+            initializeMediaPlayer();
 
         } else if (intent.getAction().equals(ACTION_PREV)) {
             mCurrentSong = mCurrentSong == 0 ? mCurrentSong : --mCurrentSong;
-            try {
-                mMediaPlayer.reset();
-                mMediaPlayer.setDataSource(mTracks.get(mCurrentSong).getPreviewUrl());
-                mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
-                mMediaPlayer.setOnPreparedListener(this);
-                mMediaPlayer.setOnErrorListener(this);
-                mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
-                WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
-                        .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
-
-                wifiLock.acquire();
-                mMediaPlayer.prepareAsync();
-            } catch (Exception e) {
-                Log.e(LOG_TAG, "Media Player error");
-
-            }
-
+            createMediaNotification();
+            initializeMediaPlayer();
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
             mMediaPlayer.pause();
         }
@@ -208,7 +123,7 @@ public class MusicPlayerService extends Service
         switch (focusChange) {
             case AudioManager.AUDIOFOCUS_GAIN:
                 // resume playback
-                if (mMediaPlayer == null) initMediaPlayer();
+                if (mMediaPlayer == null) initializeMediaPlayer();
                 else if (!mMediaPlayer.isPlaying()) mMediaPlayer.start();
                 mMediaPlayer.setVolume(1.0f, 1.0f);
                 break;
@@ -235,9 +150,45 @@ public class MusicPlayerService extends Service
         }
     }
 
-//    private Notification createMediaNotification() {
-//
-//    }
+    private void initializeMediaPlayer() {
+        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+            mMediaPlayer.reset();
+        } else {
+            mMediaPlayer = new MediaPlayer();
+        }
+
+        try {
+            mMediaPlayer.setDataSource(mTracks.get(mCurrentSong).getPreviewUrl());
+            mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
+            mMediaPlayer.setOnPreparedListener(this);
+            mMediaPlayer.setOnErrorListener(this);
+            mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
+            WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
+                    .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+            wifiLock.acquire();
+            mMediaPlayer.prepareAsync(); // prepare async to not block main thread
+        } catch (Exception e) {
+            Log.e(LOG_TAG, "Media Player error: " + e.getMessage());
+        }
+    }
+
+    private void createMediaNotification() {
+        Notification notification = new Notification.Builder(this)
+                .setStyle(new Notification.MediaStyle())
+                .setContentTitle(mTracks.get(mCurrentSong).getTrack())
+                .setTicker("Spotify Streamer")
+                .setContentText(mTracks.get(mCurrentSong).getArtist())
+                .setSmallIcon(R.drawable.ic_play_arrow_black_48dp)
+                .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
+                .setContentIntent(mPendingActivityIntent)
+                .setOngoing(true)
+                .addAction(R.drawable.ic_skip_previous_black_48dp, "", mPendingPreviousIntent)
+                .addAction(R.drawable.ic_play_arrow_black_48dp, "", mPendingPauseIntent)
+                .addAction(R.drawable.ic_skip_next_black_48dp, "", mPendingNextIntent)
+                .build();
+        startForeground(MUSIC_PLAYER_SERVICE, notification);
+        mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
+    }
 
     private Bitmap loadBitMap(final String imageUrl) {
         Bitmap bitmap = null;

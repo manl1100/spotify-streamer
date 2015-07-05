@@ -29,6 +29,11 @@ public class MusicPlayerFragment extends DialogFragment {
     private int mCurrentTrackIndex;
     Context mContext;
 
+    TextView artistTextView;
+    TextView albumTextView;
+    ImageView albumCover;
+    TextView trackTextView;
+
     public MusicPlayerFragment() {
     }
 
@@ -56,21 +61,11 @@ public class MusicPlayerFragment extends DialogFragment {
         View musicPlayerView = inflater.inflate(R.layout.fragment_music_player, container, false);
 
 
-        TextView artistTextView = (TextView) musicPlayerView.findViewById(R.id.artist_title);
-        artistTextView.setText(mTracks.get(mCurrentTrackIndex).getArtist());
-
-        TextView albumTextView = (TextView) musicPlayerView.findViewById(R.id.artist_album);
-        albumTextView.setText(mTracks.get(mCurrentTrackIndex).getAlbum());
-
-        ImageView albumCover = (ImageView) musicPlayerView.findViewById(R.id.artist_album_cover);
-        Picasso.with(getActivity())
-                .load(mTracks.get(mCurrentTrackIndex).getImageUrl())
-                .placeholder(R.drawable.ic_audiotrack_black_48dp)
-                .error(R.drawable.ic_audiotrack_black_48dp)
-                .into(albumCover);
-
-        TextView trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
-        trackTextView.setText(mTracks.get(mCurrentTrackIndex).getTrack());
+        artistTextView = (TextView) musicPlayerView.findViewById(R.id.artist_title);
+        albumTextView = (TextView) musicPlayerView.findViewById(R.id.artist_album);
+        albumCover = (ImageView) musicPlayerView.findViewById(R.id.artist_album_cover);
+        trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
+        updateTrack();
 
         TextView elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
         elapsed.setText("0:00");
@@ -90,6 +85,17 @@ public class MusicPlayerFragment extends DialogFragment {
         forward.setOnClickListener(onNextTrackClickListener());
 
         return musicPlayerView;
+    }
+
+    private void updateTrack() {
+        artistTextView.setText(mTracks.get(mCurrentTrackIndex).getArtist());
+        albumTextView.setText(mTracks.get(mCurrentTrackIndex).getAlbum());
+        Picasso.with(getActivity())
+                .load(mTracks.get(mCurrentTrackIndex).getImageUrl())
+                .placeholder(R.drawable.ic_audiotrack_black_48dp)
+                .error(R.drawable.ic_audiotrack_black_48dp)
+                .into(albumCover);
+        trackTextView.setText(mTracks.get(mCurrentTrackIndex).getTrack());
     }
 
     private View.OnClickListener onPlayPauseClickListener() {
@@ -116,9 +122,11 @@ public class MusicPlayerFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mCurrentTrackIndex = mCurrentTrackIndex == mTracks.size() - 1 ? mCurrentTrackIndex : ++mCurrentTrackIndex;
                 Intent intent = new Intent(mContext, MusicPlayerService.class);
                 intent.setAction(MusicPlayerService.ACTION_NEXT);
                 mContext.startService(intent);
+                updateTrack();
             }
         };
     }
@@ -127,9 +135,11 @@ public class MusicPlayerFragment extends DialogFragment {
         return new View.OnClickListener() {
             @Override
             public void onClick(View view) {
+                mCurrentTrackIndex = mCurrentTrackIndex == 0 ? mCurrentTrackIndex : --mCurrentTrackIndex;
                 Intent intent = new Intent(mContext, MusicPlayerService.class);
                 intent.setAction(MusicPlayerService.ACTION_PREV);
                 mContext.startService(intent);
+                updateTrack();
             }
         };
     }
