@@ -33,7 +33,7 @@ public class MusicPlayerService extends Service
     public static final String ACTION_PLAY = "com.example.spotifystreamer.action.PLAY";
     public static final String ACTION_PREV = "com.example.spotifystreamer.action.PREV";
     public static final String ACTION_NEXT = "com.example.spotifystreamer.action.NEXT";
-    public static final String ACTION_PAUSE = "com.example.spotifystreamer.action.STOP";
+    public static final String ACTION_PAUSE = "com.example.spotifystreamer.action.PAUSE";
     public static final int MUSIC_PLAYER_SERVICE = 111;
     private MediaPlayer mMediaPlayer;
     private ArrayList<ArtistTopTrackItem> mTracks;
