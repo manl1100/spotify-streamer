@@ -251,10 +251,6 @@ public class MusicPlayerService extends Service
         }
     }
 
-    public MediaPlayer getMediaPlayer() {
-        return mMediaPlayer;
-    }
-
     interface Callback {
         void onTrackCompletion(int trackIndex);
 

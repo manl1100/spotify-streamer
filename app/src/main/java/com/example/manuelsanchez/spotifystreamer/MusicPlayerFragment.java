@@ -30,9 +30,11 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
 
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentTrackIndex;
+
     Context mContext;
     MusicPlayerService musicPlayerService;
     boolean mBound;
+
     TextView artistTextView;
     TextView albumTextView;
     TextView elapsed;
@@ -40,6 +42,9 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     ImageView albumCover;
     TextView trackTextView;
     SeekBar mSeekBar;
+    Button previous;
+    Button playPause;
+    Button next;
 
     public MusicPlayerFragment() {
     }
@@ -62,13 +67,17 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        mTracks = getActivity().getIntent().getParcelableArrayListExtra(ArtistTopTracksFragment.TRACK);
-        mCurrentTrackIndex = getActivity().getIntent().getIntExtra(ArtistTopTracksFragment.TRACK_INDEX, 0);
-        if (mTracks == null) {
-            mTracks = getArguments().getParcelableArrayList(ArtistTopTracksFragment.TRACK);
-            mCurrentTrackIndex = getArguments().getInt(ArtistTopTracksFragment.TRACK_INDEX);
+        if (savedInstanceState != null) {
+            mTracks = savedInstanceState.getParcelableArrayList(ArtistTopTracksFragment.TRACK);
+            mCurrentTrackIndex = savedInstanceState.getInt(ArtistTopTracksFragment.TRACK_INDEX);
+        } else {
+            mTracks = getActivity().getIntent().getParcelableArrayListExtra(ArtistTopTracksFragment.TRACK);
+            mCurrentTrackIndex = getActivity().getIntent().getIntExtra(ArtistTopTracksFragment.TRACK_INDEX, 0);
+            if (mTracks == null) {
+                mTracks = getArguments().getParcelableArrayList(ArtistTopTracksFragment.TRACK);
+                mCurrentTrackIndex = getArguments().getInt(ArtistTopTracksFragment.TRACK_INDEX);
+            }
         }
-
     }
 
     @Override
@@ -90,14 +99,14 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
 
         mSeekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
 
-        Button rewind = (Button) musicPlayerView.findViewById(R.id.rewind);
-        rewind.setOnClickListener(onPreviousTrackClickListener());
+        previous = (Button) musicPlayerView.findViewById(R.id.rewind);
+        previous.setOnClickListener(onPreviousTrackClickListener());
 
-        Button pause = (Button) musicPlayerView.findViewById(R.id.pause);
-        pause.setOnClickListener(onPlayPauseClickListener());
+        playPause = (Button) musicPlayerView.findViewById(R.id.pause);
+        playPause.setOnClickListener(onPlayPauseClickListener());
 
-        Button forward = (Button) musicPlayerView.findViewById(R.id.forward);
-        forward.setOnClickListener(onNextTrackClickListener());
+        next = (Button) musicPlayerView.findViewById(R.id.forward);
+        next.setOnClickListener(onNextTrackClickListener());
 
         return musicPlayerView;
     }
@@ -122,7 +131,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
                     Intent intent = new Intent(mContext, MusicPlayerService.class);
                     intent.setAction(MusicPlayerService.ACTION_PLAY);
                     intent.putParcelableArrayListExtra("TRACK", mTracks);
-                    intent.getIntExtra("TRACK_INDEX", mCurrentTrackIndex);
+                    intent.putExtra("TRACK_INDEX", mCurrentTrackIndex);
                     mContext.startService(intent);
                 } else {
                     Intent intent = new Intent(mContext, MusicPlayerService.class);
@@ -165,7 +174,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         @Override
         public void onServiceConnected(ComponentName className,
                                        IBinder service) {
-            // We've bound to LocalService, cast the IBinder and get LocalService instance
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             musicPlayerService = binder.getService();
             musicPlayerService.setCallBack(MusicPlayerFragment.this);
@@ -178,6 +186,12 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         }
     };
 
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(ArtistTopTracksFragment.TRACK, mTracks);
+        outState.putInt(ArtistTopTracksFragment.TRACK_INDEX, mCurrentTrackIndex);
+    }
 
     @Override
     public void onTrackCompletion(int trackIndex) {
