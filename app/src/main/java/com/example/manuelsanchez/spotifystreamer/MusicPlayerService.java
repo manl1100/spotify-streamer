@@ -25,7 +25,8 @@ import java.util.concurrent.TimeUnit;
 
 public class MusicPlayerService extends Service
         implements MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
+        MediaPlayer.OnErrorListener,
+        MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
 
     private static final String LOG_TAG = MusicPlayerService.class.getSimpleName();
@@ -38,6 +39,7 @@ public class MusicPlayerService extends Service
     private MediaPlayer mMediaPlayer;
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentSong = 0;
+    Callback mCallBack;
 
     NotificationManager mNotificationManager;
     private PendingIntent mPendingActivityIntent;
@@ -84,18 +86,30 @@ public class MusicPlayerService extends Service
 
             createMediaNotification();
             initializeMediaPlayer();
+            if (mCallBack != null) {
+                mCallBack.onPlaybackStatusChange();
+            }
 
         } else if (intent.getAction().equals(ACTION_NEXT)) {
             mCurrentSong = mCurrentSong == mTracks.size() - 1 ? mCurrentSong : ++mCurrentSong;
             createMediaNotification();
             initializeMediaPlayer();
+            if (mCallBack != null) {
+                mCallBack.onTrackChanged(mCurrentSong);
+            }
 
         } else if (intent.getAction().equals(ACTION_PREV)) {
             mCurrentSong = mCurrentSong == 0 ? mCurrentSong : --mCurrentSong;
             createMediaNotification();
             initializeMediaPlayer();
+            if (mCallBack != null) {
+                mCallBack.onTrackChanged(mCurrentSong);
+            }
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
             mMediaPlayer.pause();
+            if (mCallBack != null) {
+                mCallBack.onPlaybackStatusChange();
+            }
         }
 
         return Service.START_STICKY;
@@ -190,6 +204,10 @@ public class MusicPlayerService extends Service
         mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
     }
 
+    public void setCallBack(Callback callBack) {
+        mCallBack = callBack;
+    }
+
     private Bitmap loadBitMap(final String imageUrl) {
         Bitmap bitmap = null;
         try {
@@ -231,6 +249,18 @@ public class MusicPlayerService extends Service
         MusicPlayerService getService() {
             return MusicPlayerService.this;
         }
+    }
+
+    public MediaPlayer getMediaPlayer() {
+        return mMediaPlayer;
+    }
+
+    interface Callback {
+        void onTrackCompletion(int trackIndex);
+
+        void onPlaybackStatusChange();
+
+        void onTrackChanged(int trackIndex);
     }
 
 }

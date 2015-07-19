@@ -2,10 +2,13 @@ package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
+import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.media.MediaPlayer;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -21,18 +24,22 @@ import com.squareup.picasso.Picasso;
 import java.util.ArrayList;
 
 
-public class MusicPlayerFragment extends DialogFragment {
+public class MusicPlayerFragment extends DialogFragment implements MusicPlayerService.Callback {
 
     private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentTrackIndex;
     Context mContext;
-
+    MusicPlayerService musicPlayerService;
+    boolean mBound;
     TextView artistTextView;
     TextView albumTextView;
+    TextView elapsed;
+    TextView remaining;
     ImageView albumCover;
     TextView trackTextView;
+    SeekBar mSeekBar;
 
     public MusicPlayerFragment() {
     }
@@ -45,6 +52,14 @@ public class MusicPlayerFragment extends DialogFragment {
     }
 
     @Override
+    public void onStart() {
+        super.onStart();
+        mContext = getActivity().getApplicationContext();
+        Intent intent = new Intent(mContext, MusicPlayerService.class);
+        mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mTracks = getActivity().getIntent().getParcelableArrayListExtra(ArtistTopTracksFragment.TRACK);
@@ -53,7 +68,7 @@ public class MusicPlayerFragment extends DialogFragment {
             mTracks = getArguments().getParcelableArrayList(ArtistTopTracksFragment.TRACK);
             mCurrentTrackIndex = getArguments().getInt(ArtistTopTracksFragment.TRACK_INDEX);
         }
-        mContext = getActivity().getApplicationContext();
+
     }
 
     @Override
@@ -67,13 +82,13 @@ public class MusicPlayerFragment extends DialogFragment {
         trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
         updateTrack();
 
-        TextView elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
+        elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
         elapsed.setText("0:00");
 
-        TextView remaining = (TextView) musicPlayerView.findViewById(R.id.time_remaining);
+        remaining = (TextView) musicPlayerView.findViewById(R.id.time_remaining);
         remaining.setText("0:30");
 
-        SeekBar seekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
+        mSeekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
 
         Button rewind = (Button) musicPlayerView.findViewById(R.id.rewind);
         rewind.setOnClickListener(onPreviousTrackClickListener());
@@ -144,4 +159,44 @@ public class MusicPlayerFragment extends DialogFragment {
         };
     }
 
+
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className,
+                                       IBinder service) {
+            // We've bound to LocalService, cast the IBinder and get LocalService instance
+            MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
+            musicPlayerService = binder.getService();
+            musicPlayerService.setCallBack(MusicPlayerFragment.this);
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+
+    @Override
+    public void onTrackCompletion(int trackIndex) {
+        Log.d(LOG_TAG, "onTrackCompletion");
+        mCurrentTrackIndex = trackIndex;
+        updateTrack();
+
+    }
+
+    @Override
+    public void onPlaybackStatusChange() {
+        Log.d(LOG_TAG, "onPlaybackStatusChange");
+
+    }
+
+    @Override
+    public void onTrackChanged(int trackIndex) {
+        Log.d(LOG_TAG, "onTrackChanged");
+        mCurrentTrackIndex = trackIndex;
+        updateTrack();
+    }
 }
