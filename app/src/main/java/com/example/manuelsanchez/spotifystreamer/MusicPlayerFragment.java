@@ -43,7 +43,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     TextView trackTextView;
     SeekBar mSeekBar;
     Button previous;
-    Button playPause;
+    ToggleButton playPause;
     Button next;
 
     public MusicPlayerFragment() {
@@ -102,7 +102,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         previous = (Button) musicPlayerView.findViewById(R.id.rewind);
         previous.setOnClickListener(onPreviousTrackClickListener());
 
-        playPause = (Button) musicPlayerView.findViewById(R.id.pause);
+        playPause = (ToggleButton) musicPlayerView.findViewById(R.id.pause);
         playPause.setOnClickListener(onPlayPauseClickListener());
 
         next = (Button) musicPlayerView.findViewById(R.id.forward);
@@ -202,9 +202,9 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     }
 
     @Override
-    public void onPlaybackStatusChange() {
+    public void onPlaybackStatusChange(String status) {
         Log.d(LOG_TAG, "onPlaybackStatusChange");
-
+        playPause.setChecked(status.equals(MusicPlayerService.ACTION_PLAY));
     }
 
     @Override

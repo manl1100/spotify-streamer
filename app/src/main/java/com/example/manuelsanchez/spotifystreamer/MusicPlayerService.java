@@ -44,6 +44,7 @@ public class MusicPlayerService extends Service
     NotificationManager mNotificationManager;
     private PendingIntent mPendingActivityIntent;
     private PendingIntent mPendingPauseIntent;
+    private PendingIntent mPendingPlayIntent;
     private PendingIntent mPendingNextIntent;
     private PendingIntent mPendingPreviousIntent;
 
@@ -59,6 +60,10 @@ public class MusicPlayerService extends Service
         Intent previousIntent = new Intent(this, MusicPlayerService.class);
         previousIntent.setAction(ACTION_PREV);
         mPendingPreviousIntent = PendingIntent.getService(this, 0, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        Intent playIntent = new Intent(this, MusicPlayerService.class);
+        playIntent.setAction(ACTION_PLAY);
+        mPendingPlayIntent = PendingIntent.getService(this, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent nextIntent = new Intent(this, MusicPlayerService.class);
         nextIntent.setAction(ACTION_NEXT);
@@ -81,18 +86,20 @@ public class MusicPlayerService extends Service
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(ACTION_PLAY)) {
 
-            mTracks = intent.getParcelableArrayListExtra("TRACK");
-            mCurrentSong = intent.getIntExtra("TRACK_INDEX", 0);
+            if (mTracks == null) {
+                mTracks = intent.getParcelableArrayListExtra("TRACK");
+                mCurrentSong = intent.getIntExtra("TRACK_INDEX", 0);
+            }
 
-            createMediaNotification();
+            createMediaNotification(ACTION_PAUSE);
             initializeMediaPlayer();
             if (mCallBack != null) {
-                mCallBack.onPlaybackStatusChange();
+                mCallBack.onPlaybackStatusChange(ACTION_PLAY);
             }
 
         } else if (intent.getAction().equals(ACTION_NEXT)) {
             mCurrentSong = mCurrentSong == mTracks.size() - 1 ? mCurrentSong : ++mCurrentSong;
-            createMediaNotification();
+            createMediaNotification(ACTION_PAUSE);
             initializeMediaPlayer();
             if (mCallBack != null) {
                 mCallBack.onTrackChanged(mCurrentSong);
@@ -100,15 +107,16 @@ public class MusicPlayerService extends Service
 
         } else if (intent.getAction().equals(ACTION_PREV)) {
             mCurrentSong = mCurrentSong == 0 ? mCurrentSong : --mCurrentSong;
-            createMediaNotification();
+            createMediaNotification(ACTION_PAUSE);
             initializeMediaPlayer();
             if (mCallBack != null) {
                 mCallBack.onTrackChanged(mCurrentSong);
             }
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
+            createMediaNotification(ACTION_PLAY);
             mMediaPlayer.pause();
             if (mCallBack != null) {
-                mCallBack.onPlaybackStatusChange();
+                mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
             }
         }
 
@@ -186,7 +194,9 @@ public class MusicPlayerService extends Service
         }
     }
 
-    private void createMediaNotification() {
+    private void createMediaNotification(String status) {
+        PendingIntent intent = status.equals(ACTION_PLAY) ? mPendingPlayIntent : mPendingPauseIntent;
+        int resource = status.equals(ACTION_PLAY) ? R.drawable.ic_play_arrow_black_48dp : R.drawable.ic_pause_black_48dp;
         Notification notification = new Notification.Builder(this)
                 .setStyle(new Notification.MediaStyle())
                 .setContentTitle(mTracks.get(mCurrentSong).getTrack())
@@ -197,7 +207,7 @@ public class MusicPlayerService extends Service
                 .setContentIntent(mPendingActivityIntent)
                 .setOngoing(true)
                 .addAction(R.drawable.ic_skip_previous_black_48dp, "", mPendingPreviousIntent)
-                .addAction(R.drawable.ic_play_arrow_black_48dp, "", mPendingPauseIntent)
+                .addAction(resource, "", intent)
                 .addAction(R.drawable.ic_skip_next_black_48dp, "", mPendingNextIntent)
                 .build();
         startForeground(MUSIC_PLAYER_SERVICE, notification);
@@ -254,7 +264,7 @@ public class MusicPlayerService extends Service
     interface Callback {
         void onTrackCompletion(int trackIndex);
 
-        void onPlaybackStatusChange();
+        void onPlaybackStatusChange(String status);
 
         void onTrackChanged(int trackIndex);
     }
