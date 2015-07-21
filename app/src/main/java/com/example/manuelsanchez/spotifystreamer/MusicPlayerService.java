@@ -35,6 +35,7 @@ public class MusicPlayerService extends Service
     public static final String ACTION_PREV = "com.example.spotifystreamer.action.PREV";
     public static final String ACTION_NEXT = "com.example.spotifystreamer.action.NEXT";
     public static final String ACTION_PAUSE = "com.example.spotifystreamer.action.PAUSE";
+    public static final String ACTION_CLOSE = "com.example.spotifystreamer.action.CLOSE";
     public static final int MUSIC_PLAYER_SERVICE = 111;
     private MediaPlayer mMediaPlayer;
     private ArrayList<ArtistTopTrackItem> mTracks;
@@ -47,6 +48,7 @@ public class MusicPlayerService extends Service
     private PendingIntent mPendingPlayIntent;
     private PendingIntent mPendingNextIntent;
     private PendingIntent mPendingPreviousIntent;
+    private PendingIntent mPendingCloseIntent;
 
 
     @Override
@@ -73,6 +75,10 @@ public class MusicPlayerService extends Service
         pauseIntent.setAction(ACTION_PAUSE);
         mPendingPauseIntent = PendingIntent.getService(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        Intent closeIntent = new Intent(this, MusicPlayerService.class);
+        closeIntent.setAction(ACTION_CLOSE);
+        mPendingCloseIntent = PendingIntent.getService(this, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
 
     }
@@ -85,14 +91,17 @@ public class MusicPlayerService extends Service
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(ACTION_PLAY)) {
-
             if (mTracks == null) {
                 mTracks = intent.getParcelableArrayListExtra("TRACK");
                 mCurrentSong = intent.getIntExtra("TRACK_INDEX", 0);
             }
 
             createMediaNotification(ACTION_PAUSE);
-            initializeMediaPlayer();
+            if (mMediaPlayer == null) {
+                initializeMediaPlayer();
+            } else {
+                mMediaPlayer.start();
+            }
             if (mCallBack != null) {
                 mCallBack.onPlaybackStatusChange(ACTION_PLAY);
             }
@@ -115,6 +124,13 @@ public class MusicPlayerService extends Service
         } else if (intent.getAction().equals(ACTION_PAUSE)) {
             createMediaNotification(ACTION_PLAY);
             mMediaPlayer.pause();
+            if (mCallBack != null) {
+                mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
+            }
+        } else if (intent.getAction().equals(ACTION_CLOSE)) {
+            stopForeground(true);
+            mMediaPlayer.reset();
+            mMediaPlayer = null;
             if (mCallBack != null) {
                 mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
             }
@@ -206,9 +222,11 @@ public class MusicPlayerService extends Service
                 .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
                 .setContentIntent(mPendingActivityIntent)
                 .setOngoing(true)
+                .setAutoCancel(true)
                 .addAction(R.drawable.ic_skip_previous_black_48dp, "", mPendingPreviousIntent)
                 .addAction(resource, "", intent)
                 .addAction(R.drawable.ic_skip_next_black_48dp, "", mPendingNextIntent)
+                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "", mPendingCloseIntent)
                 .build();
         startForeground(MUSIC_PLAYER_SERVICE, notification);
         mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
