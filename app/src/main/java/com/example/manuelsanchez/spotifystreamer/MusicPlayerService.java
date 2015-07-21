@@ -200,6 +200,7 @@ public class MusicPlayerService extends Service
             mMediaPlayer.setAudioStreamType(AudioManager.STREAM_MUSIC);
             mMediaPlayer.setOnPreparedListener(this);
             mMediaPlayer.setOnErrorListener(this);
+            mMediaPlayer.setOnCompletionListener(this);
             mMediaPlayer.setWakeMode(getApplicationContext(), PowerManager.PARTIAL_WAKE_LOCK);
             WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                     .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
@@ -270,7 +271,13 @@ public class MusicPlayerService extends Service
 
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
-        this.stopSelf();
+        if (mCurrentSong == mTracks.size() - 1) {
+            this.stopSelf();
+        } else {
+            ++mCurrentSong;
+        }
+        initializeMediaPlayer();
+        mCallBack.onTrackChanged(mCurrentSong);
     }
 
     public class MusicPlayerBinder extends Binder {
@@ -280,8 +287,6 @@ public class MusicPlayerService extends Service
     }
 
     interface Callback {
-        void onTrackCompletion(int trackIndex);
-
         void onPlaybackStatusChange(String status);
 
         void onTrackChanged(int trackIndex);

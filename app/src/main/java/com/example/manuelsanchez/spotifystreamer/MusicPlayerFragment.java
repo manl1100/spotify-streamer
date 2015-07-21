@@ -194,14 +194,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     }
 
     @Override
-    public void onTrackCompletion(int trackIndex) {
-        Log.d(LOG_TAG, "onTrackCompletion");
-        mCurrentTrackIndex = trackIndex;
-        updateTrack();
-
-    }
-
-    @Override
     public void onPlaybackStatusChange(String status) {
         Log.d(LOG_TAG, "onPlaybackStatusChange");
         playPause.setChecked(status.equals(MusicPlayerService.ACTION_PLAY));
