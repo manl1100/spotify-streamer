@@ -23,9 +23,13 @@
 
     <ImageView
         android:id="@+id/artist_album_cover"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
+        android:layout_width="350dp"
+        android:layout_height="match_parent"
         android:layout_gravity="center_horizontal"
+        android:layout_marginBottom="15dp"
+        android:layout_marginLeft="35dp"
+        android:layout_marginRight="35dp"
+        android:layout_marginTop="15dp"
         android:layout_weight="6"
         android:adjustViewBounds="true" />
 
@@ -80,9 +84,9 @@
             android:id="@+id/pause"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
+            android:background="@drawable/play_pause"
             android:textOff=""
-            android:textOn=""
-            android:background="@drawable/play_pause" />
+            android:textOn="" />
 
         <Button
             android:id="@+id/forward"
@@ -90,5 +94,6 @@
             android:layout_height="wrap_content"
             android:background="@drawable/ic_skip_next_black_48dp" />
     </LinearLayout>
+
 
 </LinearLayout>

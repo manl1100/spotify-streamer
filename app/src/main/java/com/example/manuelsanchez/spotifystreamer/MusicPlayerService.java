@@ -275,9 +275,9 @@ public class MusicPlayerService extends Service
             this.stopSelf();
         } else {
             ++mCurrentSong;
+            initializeMediaPlayer();
+            mCallBack.onTrackChanged(mCurrentSong);
         }
-        initializeMediaPlayer();
-        mCallBack.onTrackChanged(mCurrentSong);
     }
 
     public class MusicPlayerBinder extends Binder {
