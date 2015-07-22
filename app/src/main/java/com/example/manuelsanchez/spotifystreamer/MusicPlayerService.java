@@ -223,7 +223,7 @@ public class MusicPlayerService extends Service
                 .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
                 .setContentIntent(mPendingActivityIntent)
                 .setOngoing(true)
-//                .addAction(R.drawable.ic_skip_previous_black_18dp, "", mPendingPreviousIntent)
+                .addAction(R.drawable.ic_skip_previous_black_18dp, "", mPendingPreviousIntent)
                 .addAction(resource, "", intent)
                 .addAction(R.drawable.ic_skip_next_black_18dp, "", mPendingNextIntent)
                 .addAction(R.drawable.ic_clear_black_18dp, "", mPendingCloseIntent)
