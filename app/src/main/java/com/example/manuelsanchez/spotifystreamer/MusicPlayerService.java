@@ -55,8 +55,7 @@ public class MusicPlayerService extends Service
     public void onCreate() {
         super.onCreate();
         Intent notificationIntent = new Intent(this, ArtistSearchActivity.class);
-        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK
-                | Intent.FLAG_ACTIVITY_CLEAR_TASK);
+        notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
         mPendingActivityIntent = PendingIntent.getActivity(this, 0, notificationIntent, 0);
 
         Intent previousIntent = new Intent(this, MusicPlayerService.class);
@@ -213,21 +212,21 @@ public class MusicPlayerService extends Service
 
     private void createMediaNotification(String status) {
         PendingIntent intent = status.equals(ACTION_PLAY) ? mPendingPlayIntent : mPendingPauseIntent;
-        int resource = status.equals(ACTION_PLAY) ? R.drawable.ic_play_arrow_black_48dp : R.drawable.ic_pause_black_48dp;
+        int resource = status.equals(ACTION_PLAY) ? R.drawable.ic_play_arrow_black_18dp : R.drawable.ic_pause_black_18dp;
         Notification notification = new Notification.Builder(this)
                 .setStyle(new Notification.MediaStyle())
                 .setContentTitle(mTracks.get(mCurrentSong).getTrack())
                 .setTicker("Spotify Streamer")
+                .setVisibility(Notification.VISIBILITY_PUBLIC)
                 .setContentText(mTracks.get(mCurrentSong).getArtist())
                 .setSmallIcon(R.drawable.ic_play_arrow_black_48dp)
                 .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
                 .setContentIntent(mPendingActivityIntent)
                 .setOngoing(true)
-                .setAutoCancel(true)
-                .addAction(R.drawable.ic_skip_previous_black_48dp, "", mPendingPreviousIntent)
+//                .addAction(R.drawable.ic_skip_previous_black_18dp, "", mPendingPreviousIntent)
                 .addAction(resource, "", intent)
-                .addAction(R.drawable.ic_skip_next_black_48dp, "", mPendingNextIntent)
-                .addAction(android.R.drawable.ic_menu_close_clear_cancel, "", mPendingCloseIntent)
+                .addAction(R.drawable.ic_skip_next_black_18dp, "", mPendingNextIntent)
+                .addAction(R.drawable.ic_clear_black_18dp, "", mPendingCloseIntent)
                 .build();
         startForeground(MUSIC_PLAYER_SERVICE, notification);
         mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
