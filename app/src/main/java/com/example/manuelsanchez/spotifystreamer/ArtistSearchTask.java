@@ -19,7 +19,6 @@ public class ArtistSearchTask extends AsyncTask<String, Void, List<ArtistSearchI
     private static final String LOG_TAG = ArtistSearchTask.class.getSimpleName();
 
     private final ArtistSearchListAdapter mArtistSearchItemArrayAdapter;
-
     private SpotifyApi api = new SpotifyApi();
 
 

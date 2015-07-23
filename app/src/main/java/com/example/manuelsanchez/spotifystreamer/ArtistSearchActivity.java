@@ -12,6 +12,9 @@ import android.widget.Toast;
 
 import java.util.ArrayList;
 
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
+
+
 public class ArtistSearchActivity extends Activity
         implements ArtistSearchFragment.OnArtistSelectedListener, ArtistTopTracksFragment.OnTrackSelectedListener {
 
@@ -19,6 +22,7 @@ public class ArtistSearchActivity extends Activity
     private ArtistTopTracksFragment mTopTrackActivity;
     private boolean mIsTwoPane;
     private ShareActionProvider mShareActionProvider;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -75,7 +79,7 @@ public class ArtistSearchActivity extends Activity
             mTopTrackActivity.displayArtistTracks(artistId);
         } else {
             Intent intent = new Intent(getApplicationContext(), ArtistTopTracksActivity.class);
-            intent.putExtra(ArtistSearchFragment.SELECTED_ARTIST_ID, artistId);
+            intent.putExtra(SELECTED_ARTIST_ID, artistId);
             startActivity(intent);
         }
 
@@ -84,8 +88,8 @@ public class ArtistSearchActivity extends Activity
     @Override
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> tracks, int trackIndex) {
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(ArtistTopTracksFragment.TRACK, tracks);
-        bundle.putInt(ArtistTopTracksFragment.TRACK_INDEX, trackIndex);
+        bundle.putParcelableArrayList(TRACK, tracks);
+        bundle.putInt(TRACK_INDEX, trackIndex);
 
         FragmentManager fragmentManager = getFragmentManager();
         MusicPlayerFragment musicPlayer = new MusicPlayerFragment();

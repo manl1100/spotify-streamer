@@ -23,6 +23,8 @@ import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
+
 
 public class MusicPlayerFragment extends DialogFragment implements MusicPlayerService.Callback {
 
@@ -30,11 +32,9 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
 
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentTrackIndex;
-
     Context mContext;
     MusicPlayerService musicPlayerService;
     boolean mBound;
-
     TextView artistTextView;
     TextView albumTextView;
     TextView elapsed;
@@ -45,6 +45,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     Button previous;
     ToggleButton playPause;
     Button next;
+
 
     public MusicPlayerFragment() {
     }
@@ -68,14 +69,14 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
-            mTracks = savedInstanceState.getParcelableArrayList(ArtistTopTracksFragment.TRACK);
-            mCurrentTrackIndex = savedInstanceState.getInt(ArtistTopTracksFragment.TRACK_INDEX);
+            mTracks = savedInstanceState.getParcelableArrayList(TRACK);
+            mCurrentTrackIndex = savedInstanceState.getInt(TRACK_INDEX);
         } else {
-            mTracks = getActivity().getIntent().getParcelableArrayListExtra(ArtistTopTracksFragment.TRACK);
-            mCurrentTrackIndex = getActivity().getIntent().getIntExtra(ArtistTopTracksFragment.TRACK_INDEX, 0);
+            mTracks = getActivity().getIntent().getParcelableArrayListExtra(TRACK);
+            mCurrentTrackIndex = getActivity().getIntent().getIntExtra(TRACK_INDEX, 0);
             if (mTracks == null) {
-                mTracks = getArguments().getParcelableArrayList(ArtistTopTracksFragment.TRACK);
-                mCurrentTrackIndex = getArguments().getInt(ArtistTopTracksFragment.TRACK_INDEX);
+                mTracks = getArguments().getParcelableArrayList(TRACK);
+                mCurrentTrackIndex = getArguments().getInt(TRACK_INDEX);
             }
         }
     }
@@ -129,13 +130,13 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
                 boolean isPlay = ((ToggleButton) view).isChecked();
                 if (isPlay) {
                     Intent intent = new Intent(mContext, MusicPlayerService.class);
-                    intent.setAction(MusicPlayerService.ACTION_PLAY);
-                    intent.putParcelableArrayListExtra("TRACK", mTracks);
-                    intent.putExtra("TRACK_INDEX", mCurrentTrackIndex);
+                    intent.setAction(ACTION_PLAY);
+                    intent.putParcelableArrayListExtra(TRACK_ITEMS, mTracks);
+                    intent.putExtra(TRACK_INDEX, mCurrentTrackIndex);
                     mContext.startService(intent);
                 } else {
                     Intent intent = new Intent(mContext, MusicPlayerService.class);
-                    intent.setAction(MusicPlayerService.ACTION_PAUSE);
+                    intent.setAction(ACTION_PAUSE);
                     mContext.startService(intent);
                 }
             }
@@ -148,7 +149,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
             public void onClick(View view) {
                 mCurrentTrackIndex = mCurrentTrackIndex == mTracks.size() - 1 ? mCurrentTrackIndex : ++mCurrentTrackIndex;
                 Intent intent = new Intent(mContext, MusicPlayerService.class);
-                intent.setAction(MusicPlayerService.ACTION_NEXT);
+                intent.setAction(ACTION_NEXT);
                 mContext.startService(intent);
                 updateTrack();
             }
@@ -161,7 +162,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
             public void onClick(View view) {
                 mCurrentTrackIndex = mCurrentTrackIndex == 0 ? mCurrentTrackIndex : --mCurrentTrackIndex;
                 Intent intent = new Intent(mContext, MusicPlayerService.class);
-                intent.setAction(MusicPlayerService.ACTION_PREV);
+                intent.setAction(ACTION_PREV);
                 mContext.startService(intent);
                 updateTrack();
             }
@@ -189,14 +190,14 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(ArtistTopTracksFragment.TRACK, mTracks);
-        outState.putInt(ArtistTopTracksFragment.TRACK_INDEX, mCurrentTrackIndex);
+        outState.putParcelableArrayList(TRACK, mTracks);
+        outState.putInt(TRACK_INDEX, mCurrentTrackIndex);
     }
 
     @Override
     public void onPlaybackStatusChange(String status) {
         Log.d(LOG_TAG, "onPlaybackStatusChange");
-        playPause.setChecked(status.equals(MusicPlayerService.ACTION_PLAY));
+        playPause.setChecked(status.equals(ACTION_PLAY));
     }
 
     @Override

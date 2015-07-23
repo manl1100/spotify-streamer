@@ -15,15 +15,14 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
+
 
 public class ArtistSearchFragment extends Fragment {
 
-    public static final String SELECTED_ARTIST_ID = "selected_artist";
-    public static final String ARTIST_ITEMS = "artist_items";
-
     private ArtistSearchListAdapter mArtistListAdapter = null;
-
     private OnArtistSelectedListener mOnArtistSelectedListener;
+
 
     public ArtistSearchFragment() {
     }

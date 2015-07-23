@@ -16,11 +16,12 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
-
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
 import java.util.concurrent.TimeUnit;
+
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
 
 
 public class MusicPlayerService extends Service
@@ -28,18 +29,11 @@ public class MusicPlayerService extends Service
         MediaPlayer.OnErrorListener,
         MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
-
     private static final String LOG_TAG = MusicPlayerService.class.getSimpleName();
 
-    public static final String ACTION_PLAY = "com.example.spotifystreamer.action.PLAY";
-    public static final String ACTION_PREV = "com.example.spotifystreamer.action.PREV";
-    public static final String ACTION_NEXT = "com.example.spotifystreamer.action.NEXT";
-    public static final String ACTION_PAUSE = "com.example.spotifystreamer.action.PAUSE";
-    public static final String ACTION_CLOSE = "com.example.spotifystreamer.action.CLOSE";
-    public static final int MUSIC_PLAYER_SERVICE = 111;
     private MediaPlayer mMediaPlayer;
     private ArrayList<ArtistTopTrackItem> mTracks;
-    private int mCurrentSong = 0;
+    private int mCurrentSong;
     Callback mCallBack;
 
     NotificationManager mNotificationManager;
@@ -91,8 +85,8 @@ public class MusicPlayerService extends Service
     public int onStartCommand(Intent intent, int flags, int startId) {
         if (intent.getAction().equals(ACTION_PLAY)) {
             if (mTracks == null) {
-                mTracks = intent.getParcelableArrayListExtra("TRACK");
-                mCurrentSong = intent.getIntExtra("TRACK_INDEX", 0);
+                mTracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
+                mCurrentSong = intent.getIntExtra(TRACK_INDEX, 0);
             }
 
             createMediaNotification(ACTION_PAUSE);

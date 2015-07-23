@@ -21,7 +21,6 @@ public class ArtistTopTracksTask extends AsyncTask<String, Void, List<ArtistTopT
     private static final String LOG_TAG = ArtistTopTracksTask.class.getSimpleName();
 
     private final ArtistTopTracksListAdapter mArtistTopTracksListAdapter;
-
     private SpotifyApi api = new SpotifyApi();
 
 

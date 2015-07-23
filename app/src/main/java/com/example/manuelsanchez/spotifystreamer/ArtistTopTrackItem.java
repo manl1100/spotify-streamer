@@ -13,6 +13,7 @@ public class ArtistTopTrackItem implements Parcelable {
     private String previewUrl;
     private String imageUrl;
 
+
     public ArtistTopTrackItem() {
     }
 
