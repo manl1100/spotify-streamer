@@ -2,15 +2,15 @@ package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Activity;
 import android.app.FragmentManager;
-import android.content.ComponentName;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
+import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
+import android.widget.ShareActionProvider;
+import android.widget.Toast;
 
 import java.util.ArrayList;
-import java.util.Arrays;
 
 public class ArtistSearchActivity extends Activity
         implements ArtistSearchFragment.OnArtistSelectedListener, ArtistTopTracksFragment.OnTrackSelectedListener {
@@ -18,6 +18,7 @@ public class ArtistSearchActivity extends Activity
     private ArtistSearchFragment mSearchActivity;
     private ArtistTopTracksFragment mTopTrackActivity;
     private boolean mIsTwoPane;
+    private ShareActionProvider mShareActionProvider;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -35,6 +36,37 @@ public class ArtistSearchActivity extends Activity
         }
         mSearchActivity.setOnArtistSelectedListener(this);
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        getMenuInflater().inflate(R.menu.menu_artist_search, menu);
+
+        MenuItem shareItem = menu.findItem(R.id.menu_item_share);
+        mShareActionProvider = new ShareActionProvider(this);
+
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, "This is my text to send.");
+        sendIntent.setType("text/plain");
+
+        mShareActionProvider.setShareIntent(sendIntent);
+        return true;
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        int id = item.getItemId();
+
+        if (id == R.id.action_settings) {
+            return true;
+        } else if (id == R.id.menu_item_share) {
+            Toast.makeText(this, "Share something", Toast.LENGTH_LONG).show();
+        } else if (id == R.id.action_now_playing) {
+            Toast.makeText(this, "Now playing", Toast.LENGTH_LONG).show();
+        }
+
+        return super.onOptionsItemSelected(item);
     }
 
     @Override
@@ -62,4 +94,13 @@ public class ArtistSearchActivity extends Activity
         musicPlayer.show(fragmentManager, "dialog");
 
     }
+
+    public void setShareActionProvider(ShareActionProvider mShareActionProvider) {
+        this.mShareActionProvider = mShareActionProvider;
+    }
+
+    public void shareTrack(Intent shareIntent) {
+        mShareActionProvider.setShareIntent(shareIntent);
+    }
+
 }
