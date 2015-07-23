@@ -65,6 +65,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
+    // todo: refactor
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);

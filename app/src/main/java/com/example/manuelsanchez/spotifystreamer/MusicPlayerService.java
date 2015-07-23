@@ -24,10 +24,8 @@ import java.util.concurrent.TimeUnit;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
 
 
-public class MusicPlayerService extends Service
-        implements MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener,
-        MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
+public class MusicPlayerService extends Service implements MediaPlayer.OnPreparedListener,
+        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener, AudioManager.OnAudioFocusChangeListener {
 
     private static final String LOG_TAG = MusicPlayerService.class.getSimpleName();
 
@@ -73,7 +71,6 @@ public class MusicPlayerService extends Service
         mPendingCloseIntent = PendingIntent.getService(this, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         mNotificationManager = (NotificationManager) getApplicationContext().getSystemService(Context.NOTIFICATION_SERVICE);
-
     }
 
     @Override
@@ -83,59 +80,86 @@ public class MusicPlayerService extends Service
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
-        if (intent.getAction().equals(ACTION_PLAY)) {
-            if (mTracks == null) {
-                mTracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
-                mCurrentSong = intent.getIntExtra(TRACK_INDEX, 0);
-            }
-
-            createMediaNotification(ACTION_PAUSE);
-            if (mMediaPlayer == null) {
-                initializeMediaPlayer();
-            } else {
-                mMediaPlayer.start();
-            }
-            if (mCallBack != null) {
-                mCallBack.onPlaybackStatusChange(ACTION_PLAY);
-            }
-
-        } else if (intent.getAction().equals(ACTION_NEXT)) {
-            mCurrentSong = mCurrentSong == mTracks.size() - 1 ? mCurrentSong : ++mCurrentSong;
-            createMediaNotification(ACTION_PAUSE);
-            initializeMediaPlayer();
-            if (mCallBack != null) {
-                mCallBack.onTrackChanged(mCurrentSong);
-            }
-
-        } else if (intent.getAction().equals(ACTION_PREV)) {
-            mCurrentSong = mCurrentSong == 0 ? mCurrentSong : --mCurrentSong;
-            createMediaNotification(ACTION_PAUSE);
-            initializeMediaPlayer();
-            if (mCallBack != null) {
-                mCallBack.onTrackChanged(mCurrentSong);
-            }
-        } else if (intent.getAction().equals(ACTION_PAUSE)) {
-            createMediaNotification(ACTION_PLAY);
-            mMediaPlayer.pause();
-            if (mCallBack != null) {
-                mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
-            }
-        } else if (intent.getAction().equals(ACTION_CLOSE)) {
-            stopForeground(true);
-            mMediaPlayer.reset();
-            mMediaPlayer = null;
-            if (mCallBack != null) {
-                mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
-            }
+        switch (intent.getAction()) {
+            case ACTION_PLAY:
+                playPause(intent);
+                break;
+            case ACTION_NEXT:
+                nextTrack();
+                break;
+            case ACTION_PREV:
+                previousTrack();
+                break;
+            case ACTION_PAUSE:
+                pausePlayer();
+                break;
+            case ACTION_CLOSE:
+                stopPlayer();
+                break;
+            default:
+                stopPlayer();
         }
-
         return Service.START_STICKY;
     }
 
+    private void playPause(Intent intent) {
+        if (mTracks == null) {
+            mTracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
+            mCurrentSong = intent.getIntExtra(TRACK_INDEX, 0);
+        }
+
+        createMediaNotification(ACTION_PAUSE);
+        if (mMediaPlayer == null) {
+            initializeMediaPlayer();
+        } else {
+            mMediaPlayer.start();
+        }
+        if (mCallBack != null) {
+            mCallBack.onPlaybackStatusChange(ACTION_PLAY);
+        }
+
+    }
+
+    private void nextTrack() {
+        mCurrentSong = mCurrentSong == mTracks.size() - 1 ? mCurrentSong : ++mCurrentSong;
+        createMediaNotification(ACTION_PAUSE);
+        initializeMediaPlayer();
+        if (mCallBack != null) {
+            mCallBack.onTrackChanged(mCurrentSong);
+        }
+    }
+
+    private void previousTrack() {
+        mCurrentSong = mCurrentSong == 0 ? mCurrentSong : --mCurrentSong;
+        createMediaNotification(ACTION_PAUSE);
+        initializeMediaPlayer();
+        if (mCallBack != null) {
+            mCallBack.onTrackChanged(mCurrentSong);
+        }
+    }
+
+    private void pausePlayer() {
+        createMediaNotification(ACTION_PLAY);
+        mMediaPlayer.pause();
+        if (mCallBack != null) {
+            mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
+        }
+    }
+
+    private void stopPlayer() {
+        stopForeground(true);
+        mMediaPlayer.reset();
+        mMediaPlayer = null;
+        if (mCallBack != null) {
+            mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
+        }
+    }
+
+
+
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        // ... react appropriately ...
-        // The MediaPlayer has moved to the Error state, must be reset!
+        // todo: handle error
         return false;
     }
 
@@ -198,7 +222,7 @@ public class MusicPlayerService extends Service
             WifiManager.WifiLock wifiLock = ((WifiManager) getSystemService(Context.WIFI_SERVICE))
                     .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
             wifiLock.acquire();
-            mMediaPlayer.prepareAsync(); // prepare async to not block main thread
+            mMediaPlayer.prepareAsync();
         } catch (Exception e) {
             Log.e(LOG_TAG, "Media Player error: " + e.getMessage());
         }
