@@ -1,5 +1,6 @@
 package com.example.manuelsanchez.spotifystreamer;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.content.Intent;
 import android.os.Bundle;
@@ -28,8 +29,14 @@ public class ArtistTopTracksFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mOnTrackSelectedListener = (OnTrackSelectedListener) activity;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
-        View view = inflater.inflate(R.layout.fragment_artist_top_ten, container, true);
+        View view = inflater.inflate(R.layout.fragment_artist_top_ten, container, false);
 
         mArtistTopTracksListAdapter = new ArtistTopTracksListAdapter(getActivity(), R.layout.artist_top_ten_item);
 
@@ -41,8 +48,11 @@ public class ArtistTopTracksFragment extends Fragment {
             ArrayList<ArtistTopTrackItem> topTracks = savedInstanceState.getParcelableArrayList(TRACK_ITEMS);
             mArtistTopTracksListAdapter.addAll(topTracks);
         } else {
-            String selectedArtist = getActivity().getIntent().getStringExtra(SELECTED_ARTIST_ID);
-            new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(selectedArtist);
+//            String selectedArtist = getActivity().getIntent().getStringExtra(SELECTED_ARTIST_ID);  for new activity
+            if (getArguments() != null) {
+                String selectedArtist = getArguments().getString(SELECTED_ARTIST_ID);
+                new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(selectedArtist);
+            }
         }
 
         return view;
@@ -52,10 +62,6 @@ public class ArtistTopTracksFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(TRACK_ITEMS, mArtistTopTracksListAdapter.getItems());
-    }
-
-    public void setOnTrackSelectedListener(OnTrackSelectedListener mOnTrackSelectedListener) {
-        this.mOnTrackSelectedListener = mOnTrackSelectedListener;
     }
 
     public void displayArtistTracks(String artistId) {
@@ -69,11 +75,6 @@ public class ArtistTopTracksFragment extends Fragment {
                 ArrayList<ArtistTopTrackItem> artistTracks = mArtistTopTracksListAdapter.getItems();
                 if (mOnTrackSelectedListener != null) {
                     mOnTrackSelectedListener.onTrackSelected(artistTracks, position);
-                } else {
-                    Intent intent = new Intent(getActivity(), MusicPlayerActivity.class);
-                    intent.putExtra(TRACK, artistTracks);
-                    intent.putExtra(TRACK_INDEX, position);
-                    startActivity(intent);
                 }
             }
         };

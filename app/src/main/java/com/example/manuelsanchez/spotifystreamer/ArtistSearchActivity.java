@@ -1,7 +1,9 @@
 package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Activity;
+import android.app.Fragment;
 import android.app.FragmentManager;
+import android.app.FragmentTransaction;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.Menu;
@@ -20,6 +22,7 @@ public class ArtistSearchActivity extends Activity
 
     private ArtistSearchFragment mSearchActivity;
     private ArtistTopTracksFragment mTopTrackActivity;
+    private MusicPlayerFragment mMusicPlayerFragment;
     private boolean mIsTwoPane;
     private ShareActionProvider mShareActionProvider;
 
@@ -31,14 +34,14 @@ public class ArtistSearchActivity extends Activity
 
         mSearchActivity = (ArtistSearchFragment) getFragmentManager().findFragmentById(R.id.fragment_search);
         mTopTrackActivity = (ArtistTopTracksFragment) getFragmentManager().findFragmentById(R.id.fragment_top_tracks);
-
         View topTrackView = findViewById(R.id.fragment_top_tracks);
         mIsTwoPane = topTrackView != null && topTrackView.getVisibility() == View.VISIBLE;
 
-        if (mIsTwoPane) {
-            mTopTrackActivity.setOnTrackSelectedListener(this);
-        }
         mSearchActivity.setOnArtistSelectedListener(this);
+
+        if (savedInstanceState != null) {
+            mMusicPlayerFragment = (MusicPlayerFragment) getFragmentManager().getFragment(savedInstanceState, "fragment_key");
+        }
 
     }
 
@@ -68,9 +71,20 @@ public class ArtistSearchActivity extends Activity
             Toast.makeText(this, "Share something", Toast.LENGTH_LONG).show();
         } else if (id == R.id.action_now_playing) {
             Toast.makeText(this, "Now playing", Toast.LENGTH_LONG).show();
+            if (mMusicPlayerFragment != null) {
+                mMusicPlayerFragment.show(getFragmentManager(), "Now playing");
+            }
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        if (mIsTwoPane) {
+            getFragmentManager().putFragment(outState, "mContent", mMusicPlayerFragment);
+        }
     }
 
     @Override
@@ -78,24 +92,54 @@ public class ArtistSearchActivity extends Activity
         if (mIsTwoPane) {
             mTopTrackActivity.displayArtistTracks(artistId);
         } else {
-            Intent intent = new Intent(getApplicationContext(), ArtistTopTracksActivity.class);
-            intent.putExtra(SELECTED_ARTIST_ID, artistId);
-            startActivity(intent);
+            /**
+             * fragment transaction for tracks
+             */
+            if (mTopTrackActivity == null) {
+                mTopTrackActivity = new ArtistTopTracksFragment();
+            }
+            Bundle args = new Bundle();
+            args.putString(SELECTED_ARTIST_ID, artistId);
+            mTopTrackActivity.setArguments(args);
+
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.artist_search_container, mTopTrackActivity);
+            fragmentTransaction.setBreadCrumbTitle("Main title");
+            fragmentTransaction.setBreadCrumbShortTitle("Subtitle");
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+
+            /**
+             * new activity for tracks
+             *
+             Intent intent = new Intent(getApplicationContext(), ArtistTopTracksActivity.class);
+             intent.putExtra(SELECTED_ARTIST_ID, artistId);
+             startActivity(intent);
+             */
+
         }
 
     }
 
     @Override
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> tracks, int trackIndex) {
+        FragmentManager fragmentManager = getFragmentManager();
+        if (mMusicPlayerFragment == null) {
+            mMusicPlayerFragment = new MusicPlayerFragment();
+        }
         Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(TRACK, tracks);
+        bundle.putParcelableArrayList(TRACK_ITEMS, tracks);
         bundle.putInt(TRACK_INDEX, trackIndex);
 
-        FragmentManager fragmentManager = getFragmentManager();
-        MusicPlayerFragment musicPlayer = new MusicPlayerFragment();
-        musicPlayer.setArguments(bundle);
-
-        musicPlayer.show(fragmentManager, "dialog");
+        mMusicPlayerFragment.setArguments(bundle);
+        if (mIsTwoPane) {
+            mMusicPlayerFragment.show(fragmentManager, "dialog");
+        } else {
+            FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
+            fragmentTransaction.replace(R.id.artist_search_container, mMusicPlayerFragment);
+            fragmentTransaction.addToBackStack(null);
+            fragmentTransaction.commit();
+        }
 
     }
 

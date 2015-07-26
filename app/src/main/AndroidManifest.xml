@@ -29,15 +29,6 @@
                 android:name="android.support.PARENT_ACTIVITY"
                 android:value=".ArtistSearchActivity" />
         </activity>
-        <activity
-            android:name=".MusicPlayerActivity"
-            android:label="@string/title_activity_music_player"
-            android:parentActivityName=".ArtistTopTracksActivity"
-            android:screenOrientation="portrait">
-            <meta-data
-                android:name="android.support.PARENT_ACTIVITY"
-                android:value=".ArtistTopTracksActivity" />
-        </activity>
 
         <service android:name="com.example.manuelsanchez.spotifystreamer.MusicPlayerService" />
     </application>

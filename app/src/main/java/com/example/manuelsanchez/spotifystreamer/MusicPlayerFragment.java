@@ -51,6 +51,20 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     }
 
     @Override
+    public void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (mTracks == null) {
+            if (savedInstanceState != null) {
+                mTracks = savedInstanceState.getParcelableArrayList(TRACK);
+                mCurrentTrackIndex = savedInstanceState.getInt(TRACK_INDEX);
+            } else {
+                mTracks = getArguments().getParcelableArrayList(TRACK_ITEMS);
+                mCurrentTrackIndex = getArguments().getInt(TRACK_INDEX);
+            }
+        }
+    }
+
+    @Override
     public Dialog onCreateDialog(Bundle savedInstanceState) {
         Dialog dialog = super.onCreateDialog(savedInstanceState);
         dialog.getWindow().requestFeature(Window.FEATURE_NO_TITLE);
@@ -63,23 +77,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         mContext = getActivity().getApplicationContext();
         Intent intent = new Intent(mContext, MusicPlayerService.class);
         mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-    }
-
-    // todo: refactor
-    @Override
-    public void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-        if (savedInstanceState != null) {
-            mTracks = savedInstanceState.getParcelableArrayList(TRACK);
-            mCurrentTrackIndex = savedInstanceState.getInt(TRACK_INDEX);
-        } else {
-            mTracks = getActivity().getIntent().getParcelableArrayListExtra(TRACK);
-            mCurrentTrackIndex = getActivity().getIntent().getIntExtra(TRACK_INDEX, 0);
-            if (mTracks == null) {
-                mTracks = getArguments().getParcelableArrayList(TRACK);
-                mCurrentTrackIndex = getArguments().getInt(TRACK_INDEX);
-            }
-        }
     }
 
     @Override
