@@ -109,14 +109,6 @@ public class ArtistSearchActivity extends Activity
             fragmentTransaction.addToBackStack(null);
             fragmentTransaction.commit();
 
-            /**
-             * new activity for tracks
-             *
-             Intent intent = new Intent(getApplicationContext(), ArtistTopTracksActivity.class);
-             intent.putExtra(SELECTED_ARTIST_ID, artistId);
-             startActivity(intent);
-             */
-
         }
 
     }
