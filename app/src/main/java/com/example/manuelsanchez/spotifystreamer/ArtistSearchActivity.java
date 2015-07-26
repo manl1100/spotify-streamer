@@ -82,7 +82,7 @@ public class ArtistSearchActivity extends Activity
     @Override
     protected void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
-        if (mIsTwoPane) {
+        if (mIsTwoPane && mMusicPlayerFragment != null) {
             getFragmentManager().putFragment(outState, "mContent", mMusicPlayerFragment);
         }
     }
