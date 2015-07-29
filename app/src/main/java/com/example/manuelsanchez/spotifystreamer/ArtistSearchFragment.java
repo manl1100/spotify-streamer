@@ -1,7 +1,6 @@
 package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
@@ -15,7 +14,7 @@ import android.widget.TextView;
 
 import java.util.ArrayList;
 
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ARTIST_ITEMS;
 
 
 public class ArtistSearchFragment extends Fragment {

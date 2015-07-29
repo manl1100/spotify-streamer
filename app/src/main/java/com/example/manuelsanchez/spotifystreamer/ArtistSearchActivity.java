@@ -32,11 +32,6 @@ public class ArtistSearchActivity extends BaseActivity
 
         mSearchActivity.setOnArtistSelectedListener(this);
 
-        if (savedInstanceState != null) {
-            mTracks = savedInstanceState.getParcelableArrayList(TRACK_ITEMS);
-            mCurrentIndex = savedInstanceState.getInt(TRACK_INDEX);
-        }
-
     }
 
     @Override
@@ -55,9 +50,6 @@ public class ArtistSearchActivity extends BaseActivity
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> tracks, int trackIndex) {
         FragmentManager fragmentManager = getFragmentManager();
         MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
-
-        mTracks = tracks;
-        mCurrentIndex = trackIndex;
 
         Bundle bundle = new Bundle();
         bundle.putParcelableArrayList(TRACK_ITEMS, tracks);

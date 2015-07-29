@@ -1,29 +1,52 @@
 package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Activity;
+import android.content.ComponentName;
+import android.content.Context;
 import android.content.Intent;
+import android.content.ServiceConnection;
 import android.os.Bundle;
+import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
-import com.squareup.okhttp.Call;
-
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
-
-import java.util.ArrayList;
 
 /**
  * Created by Manuel Sanchez on 7/26/15
  */
 public abstract class BaseActivity extends Activity {
 
+    protected MusicPlayerService mMusicPlayerService;
     private ShareActionProvider mShareActionProvider;
-    protected ArrayList<ArtistTopTrackItem> mTracks;
-    protected int mCurrentIndex;
+    protected Context mContext;
 
+    private boolean mBound;
+    private ServiceConnection mConnection = new ServiceConnection() {
+
+        @Override
+        public void onServiceConnected(ComponentName className, IBinder service) {
+            MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
+            mMusicPlayerService = binder.getService();
+            mBound = true;
+        }
+
+        @Override
+        public void onServiceDisconnected(ComponentName arg0) {
+            mBound = false;
+        }
+    };
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        mContext = getApplicationContext();
+        Intent intent = new Intent(mContext, MusicPlayerService.class);
+        mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -51,10 +74,10 @@ public abstract class BaseActivity extends Activity {
             Toast.makeText(this, "Share something", Toast.LENGTH_LONG).show();
         } else if (id == R.id.action_now_playing) {
             Toast.makeText(this, "Now playing", Toast.LENGTH_LONG).show();
-            if (mTracks != null) {
+            if (mMusicPlayerService.getTracks() != null) {
                 Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList(TRACK_ITEMS, mTracks);
-                bundle.putInt(TRACK_INDEX, mCurrentIndex);
+                bundle.putParcelableArrayList(TRACK_ITEMS, mMusicPlayerService.getTracks());
+                bundle.putInt(TRACK_INDEX, mMusicPlayerService.getCurrentIndex());
 
                 MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
                 musicPlayerFragment.setArguments(bundle);
@@ -65,13 +88,6 @@ public abstract class BaseActivity extends Activity {
         return super.onOptionsItemSelected(item);
     }
 
-    @Override
-    protected void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TRACK_ITEMS, mTracks);
-        outState.putInt(TRACK_INDEX, mCurrentIndex);
-    }
-
     public void setShareActionProvider(ShareActionProvider mShareActionProvider) {
         this.mShareActionProvider = mShareActionProvider;
     }
@@ -79,4 +95,5 @@ public abstract class BaseActivity extends Activity {
     public void shareTrack(Intent shareIntent) {
         mShareActionProvider.setShareIntent(shareIntent);
     }
+
 }

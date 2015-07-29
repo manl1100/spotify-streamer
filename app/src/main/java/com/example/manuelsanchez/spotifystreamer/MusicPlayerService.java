@@ -331,4 +331,12 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         void onTrackChanged(int trackIndex);
     }
 
+    public ArrayList<ArtistTopTrackItem> getTracks() {
+        return mTracks;
+    }
+
+    public int getCurrentIndex() {
+        return mCurrentSong;
+    }
+
 }

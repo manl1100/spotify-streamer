@@ -109,19 +109,9 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     @Override
     public void onStart() {
         super.onStart();
-        if (mBound) {
-            // TODO: is this ever called
-            Intent intent = new Intent(mContext, MusicPlayerService.class);
-            intent.setAction(ACTION_PLAY);
-            intent.putParcelableArrayListExtra(TRACK_ITEMS, mTracks);
-            intent.putExtra(TRACK_INDEX, mCurrentTrackIndex);
-            mContext.startService(intent);
-        } else {
-            mContext = getActivity().getApplicationContext();
-            Intent intent = new Intent(mContext, MusicPlayerService.class);
-            mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
-        }
-
+        mContext = getActivity().getApplicationContext();
+        Intent intent = new Intent(mContext, MusicPlayerService.class);
+        mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
     }
 
     public void updateTrack() {

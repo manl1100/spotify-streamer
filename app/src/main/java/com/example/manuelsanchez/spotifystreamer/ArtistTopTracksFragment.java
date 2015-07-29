@@ -2,7 +2,6 @@ package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Activity;
 import android.app.Fragment;
-import android.content.Intent;
 import android.os.Bundle;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -12,7 +11,8 @@ import android.widget.ListView;
 
 import java.util.ArrayList;
 
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.SELECTED_ARTIST_ID;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 
 public class ArtistTopTracksFragment extends Fragment {
@@ -48,11 +48,8 @@ public class ArtistTopTracksFragment extends Fragment {
             ArrayList<ArtistTopTrackItem> topTracks = savedInstanceState.getParcelableArrayList(TRACK_ITEMS);
             mArtistTopTracksListAdapter.addAll(topTracks);
         } else {
-            String selectedArtist = getActivity().getIntent().getStringExtra(SELECTED_ARTIST_ID);  //for new activity
-//            if (getArguments() != null) {
-//                String selectedArtist = getArguments().getString(SELECTED_ARTIST_ID);
-                new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(selectedArtist);
-//            }
+            String selectedArtist = getActivity().getIntent().getStringExtra(SELECTED_ARTIST_ID);
+            new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(selectedArtist);
         }
 
         return view;
