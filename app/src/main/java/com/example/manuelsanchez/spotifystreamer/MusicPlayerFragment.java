@@ -33,7 +33,7 @@ import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 
-public class MusicPlayerFragment extends DialogFragment implements MusicPlayerService.Callback {
+public class MusicPlayerFragment extends DialogFragment implements MusicPlayerService.Callback, MusicPlayerService.StatusChangeListener {
 
     private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
@@ -52,6 +52,8 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     private Button previous;
     private ToggleButton playPause;
     private Button next;
+
+    private String playbackState;
 
 
     public MusicPlayerFragment() {
@@ -177,6 +179,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             musicPlayerService = binder.getService();
             musicPlayerService.setCallBack(MusicPlayerFragment.this);
+            musicPlayerService.setStatusChangeListener(MusicPlayerFragment.this);
             mBound = true;
 
             Intent intent = new Intent(mContext, MusicPlayerService.class);
@@ -203,6 +206,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     public void onPlaybackStatusChange(String status) {
         Log.d(LOG_TAG, "onPlaybackStatusChange");
         playPause.setChecked(status.equals(ACTION_PLAY));
+        playbackState = status;
     }
 
     @Override

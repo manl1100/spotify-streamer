@@ -12,17 +12,21 @@ import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 import android.widget.Toast;
 
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 /**
  * Created by Manuel Sanchez on 7/26/15
  */
-public abstract class BaseActivity extends Activity {
+public abstract class BaseActivity extends Activity implements MusicPlayerService.StatusChangeListener {
 
     protected MusicPlayerService mMusicPlayerService;
     private ShareActionProvider mShareActionProvider;
     protected Context mContext;
+
+    private MenuItem mNowPlayingMenuItem;
 
     private boolean mBound;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -31,6 +35,7 @@ public abstract class BaseActivity extends Activity {
         public void onServiceConnected(ComponentName className, IBinder service) {
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             mMusicPlayerService = binder.getService();
+            mMusicPlayerService.setStatusChangeListener(BaseActivity.this);
             mBound = true;
         }
 
@@ -51,6 +56,8 @@ public abstract class BaseActivity extends Activity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         getMenuInflater().inflate(R.menu.menu_artist_search, menu);
+
+        mNowPlayingMenuItem = menu.findItem(R.id.action_now_playing);
 
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
         mShareActionProvider = new ShareActionProvider(this);
@@ -86,6 +93,23 @@ public abstract class BaseActivity extends Activity {
         }
 
         return super.onOptionsItemSelected(item);
+    }
+
+    @Override
+    public void onPlaybackStatusChange(String status) {
+        if (status.equals(ACTION_PLAY)) {
+            displayNowPlayingMenuItem();
+        } else if (status.equals(ACTION_IDLE)) {
+            hideNowPlayingMenuItem();
+        }
+    }
+
+    protected void displayNowPlayingMenuItem() {
+        mNowPlayingMenuItem.setVisible(true);
+    }
+
+    protected void hideNowPlayingMenuItem() {
+        mNowPlayingMenuItem.setVisible(false);
     }
 
     public void setShareActionProvider(ShareActionProvider mShareActionProvider) {

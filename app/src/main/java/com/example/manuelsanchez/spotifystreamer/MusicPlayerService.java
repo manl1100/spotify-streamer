@@ -20,6 +20,7 @@ import android.util.Log;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.List;
 import java.util.concurrent.TimeUnit;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.*;
@@ -33,7 +34,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private MediaPlayer mMediaPlayer;
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentSong;
+
     Callback mCallBack;
+    List<StatusChangeListener> statusChangeListener;
 
     NotificationManager mNotificationManager;
     private PendingIntent mPendingActivityIntent;
@@ -88,7 +91,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public int onStartCommand(Intent intent, int flags, int startId) {
         switch (intent.getAction()) {
             case ACTION_PLAY:
-                playPause(intent);
+                play(intent);
                 break;
             case ACTION_NEXT:
                 nextTrack();
@@ -111,7 +114,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         return Service.START_STICKY;
     }
 
-    private void playPause(Intent intent) {
+    private void play(Intent intent) {
         ArrayList<ArtistTopTrackItem> tracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
         int trackIndex = intent.getIntExtra(TRACK_INDEX, 0);
 
@@ -121,9 +124,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
             createMediaNotification(ACTION_PAUSE);
             initializeMediaPlayer();
-            if (mCallBack != null) {
-                mCallBack.onPlaybackStatusChange(ACTION_PLAY);
-            }
+
+            fireStatusChangeEvent(ACTION_PLAY);
+
         }
     }
 
@@ -139,43 +142,34 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         mCurrentSong = mCurrentSong == mTracks.size() - 1 ? mCurrentSong : ++mCurrentSong;
         createMediaNotification(ACTION_PAUSE);
         initializeMediaPlayer();
-        if (mCallBack != null) {
-            mCallBack.onTrackChanged(mCurrentSong);
-        }
+        fireTrackChangeEvent(mCurrentSong);
     }
 
     private void previousTrack() {
         mCurrentSong = mCurrentSong == 0 ? mCurrentSong : --mCurrentSong;
         createMediaNotification(ACTION_PAUSE);
         initializeMediaPlayer();
-        if (mCallBack != null) {
-            mCallBack.onTrackChanged(mCurrentSong);
-        }
+        fireTrackChangeEvent(mCurrentSong);
     }
 
     private void pausePlayer() {
         createMediaNotification(ACTION_PLAY);
         mMediaPlayer.pause();
-        if (mCallBack != null) {
-            mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
-        }
+        fireStatusChangeEvent(ACTION_PAUSE);
+
     }
 
     private void resumePlayer() {
         createMediaNotification(ACTION_PAUSE);
         mMediaPlayer.start();
-        if (mCallBack != null) {
-            mCallBack.onPlaybackStatusChange(ACTION_PLAY);
-        }
+        fireStatusChangeEvent(ACTION_PLAY);
     }
 
     private void stopPlayer() {
         stopForeground(true);
         mMediaPlayer.reset();
         mMediaPlayer = null;
-        if (mCallBack != null) {
-            mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
-        }
+        fireStatusChangeEvent(ACTION_PAUSE);
     }
 
 
@@ -276,6 +270,25 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         mCallBack = callBack;
     }
 
+    private void fireTrackChangeEvent(int index) {
+        if (mCallBack != null) {
+            mCallBack.onTrackChanged(index);
+        }
+    }
+
+    public void setStatusChangeListener(StatusChangeListener callBack) {
+        if (statusChangeListener == null) {
+            statusChangeListener = new ArrayList<>();
+        }
+        statusChangeListener.add(callBack);
+    }
+
+    private void fireStatusChangeEvent(String status) {
+        for (StatusChangeListener listener : statusChangeListener) {
+            listener.onPlaybackStatusChange(status);
+        }
+    }
+
     private Bitmap loadBitMap(final String imageUrl) {
         Bitmap bitmap = null;
         try {
@@ -312,6 +325,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     public void onCompletion(MediaPlayer mediaPlayer) {
         if (mCurrentSong == mTracks.size() - 1) {
             this.stopSelf();
+            fireStatusChangeEvent(ACTION_IDLE);
         } else {
             ++mCurrentSong;
             initializeMediaPlayer();
@@ -326,10 +340,14 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     interface Callback {
-        void onPlaybackStatusChange(String status);
 
         void onTrackChanged(int trackIndex);
     }
+
+    interface StatusChangeListener {
+        void onPlaybackStatusChange(String status);
+    }
+
 
     public ArrayList<ArtistTopTrackItem> getTracks() {
         return mTracks;

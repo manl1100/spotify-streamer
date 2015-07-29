@@ -11,6 +11,7 @@ public class SpotifyStreamerConstants {
     public static final String ACTION_PAUSE = "com.example.spotifystreamer.action.PAUSE";
     public static final String ACTION_RESUME = "com.example.spotifystreamer.action.RESUME";
     public static final String ACTION_CLOSE = "com.example.spotifystreamer.action.CLOSE";
+    public static final String ACTION_IDLE = "com.example.spotifystreamer.action.IDLE";
 
     public static final String SELECTED_ARTIST_ID = "selected_artist";
     public static final String ARTIST_ITEMS = "artist_items";
