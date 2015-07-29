@@ -20,6 +20,15 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity
+            android:name=".ArtistTopTracksActivity"
+            android:label="@string/title_activity_spotify_streamer"
+            android:launchMode="singleTop"
+            android:parentActivityName=".ArtistSearchActivity">
+            <meta-data
+                android:name="android.support.PARENT_ACTIVITY"
+                android:value=".ArtistSearchActivity" />
+        </activity>
 
         <service android:name="com.example.manuelsanchez.spotifystreamer.MusicPlayerService" />
     </application>

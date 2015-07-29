@@ -48,11 +48,11 @@ public class ArtistTopTracksFragment extends Fragment {
             ArrayList<ArtistTopTrackItem> topTracks = savedInstanceState.getParcelableArrayList(TRACK_ITEMS);
             mArtistTopTracksListAdapter.addAll(topTracks);
         } else {
-//            String selectedArtist = getActivity().getIntent().getStringExtra(SELECTED_ARTIST_ID);  for new activity
-            if (getArguments() != null) {
-                String selectedArtist = getArguments().getString(SELECTED_ARTIST_ID);
+            String selectedArtist = getActivity().getIntent().getStringExtra(SELECTED_ARTIST_ID);  //for new activity
+//            if (getArguments() != null) {
+//                String selectedArtist = getArguments().getString(SELECTED_ARTIST_ID);
                 new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(selectedArtist);
-            }
+//            }
         }
 
         return view;

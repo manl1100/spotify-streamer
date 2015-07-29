@@ -16,6 +16,7 @@ import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
 import android.util.Log;
+
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -37,6 +38,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     NotificationManager mNotificationManager;
     private PendingIntent mPendingActivityIntent;
     private PendingIntent mPendingPauseIntent;
+    private PendingIntent mPendingResumeIntent;
     private PendingIntent mPendingPlayIntent;
     private PendingIntent mPendingNextIntent;
     private PendingIntent mPendingPreviousIntent;
@@ -66,6 +68,10 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         pauseIntent.setAction(ACTION_PAUSE);
         mPendingPauseIntent = PendingIntent.getService(this, 0, pauseIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
+        Intent resumeIntent = new Intent(this, MusicPlayerService.class);
+        resumeIntent.setAction(ACTION_RESUME);
+        mPendingResumeIntent = PendingIntent.getService(this, 0, resumeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+
         Intent closeIntent = new Intent(this, MusicPlayerService.class);
         closeIntent.setAction(ACTION_CLOSE);
         mPendingCloseIntent = PendingIntent.getService(this, 0, closeIntent, PendingIntent.FLAG_UPDATE_CURRENT);
@@ -93,6 +99,9 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
             case ACTION_PAUSE:
                 pausePlayer();
                 break;
+            case ACTION_RESUME:
+                resumePlayer();
+                break;
             case ACTION_CLOSE:
                 stopPlayer();
                 break;
@@ -103,21 +112,27 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     private void playPause(Intent intent) {
-        if (mTracks == null) {
-            mTracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
-            mCurrentSong = intent.getIntExtra(TRACK_INDEX, 0);
-        }
+        ArrayList<ArtistTopTrackItem> tracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
+        int trackIndex = intent.getIntExtra(TRACK_INDEX, 0);
 
-        createMediaNotification(ACTION_PAUSE);
-        if (mMediaPlayer == null) {
+        if (mTracks == null || !isTrackCurrentlyPlaying(tracks, trackIndex)) {
+            mTracks = tracks;
+            mCurrentSong = trackIndex;
+
+            createMediaNotification(ACTION_PAUSE);
             initializeMediaPlayer();
-        } else {
-            mMediaPlayer.start();
+            if (mCallBack != null) {
+                mCallBack.onPlaybackStatusChange(ACTION_PLAY);
+            }
         }
-        if (mCallBack != null) {
-            mCallBack.onPlaybackStatusChange(ACTION_PLAY);
-        }
+    }
 
+    private boolean isTrackCurrentlyPlaying(ArrayList<ArtistTopTrackItem> tracks, int index) {
+        ArtistTopTrackItem currentTrack = mTracks.get(mCurrentSong);
+        ArtistTopTrackItem track = tracks.get(index);
+        return track.getArtist().equals(currentTrack.getArtist()) &&
+                track.getTrack().equals(currentTrack.getTrack()) &&
+                track.getAlbum().equals(currentTrack.getAlbum());
     }
 
     private void nextTrack() {
@@ -146,6 +161,14 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
         }
     }
 
+    private void resumePlayer() {
+        createMediaNotification(ACTION_PAUSE);
+        mMediaPlayer.start();
+        if (mCallBack != null) {
+            mCallBack.onPlaybackStatusChange(ACTION_PLAY);
+        }
+    }
+
     private void stopPlayer() {
         stopForeground(true);
         mMediaPlayer.reset();
@@ -154,7 +177,6 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
             mCallBack.onPlaybackStatusChange(ACTION_PAUSE);
         }
     }
-
 
 
     @Override
