@@ -36,7 +36,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     private int mCurrentSong;
 
     Callback mCallBack;
-    List<StatusChangeListener> statusChangeListener;
+    ArrayList<StatusChangeListener> statusChangeListener;
 
     NotificationManager mNotificationManager;
     private PendingIntent mPendingActivityIntent;
@@ -175,7 +175,7 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
     @Override
     public boolean onError(MediaPlayer mp, int what, int extra) {
-        // todo: handle error
+        mp.reset();
         return false;
     }
 
@@ -355,6 +355,10 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
 
     public int getCurrentIndex() {
         return mCurrentSong;
+    }
+
+    public ArtistTopTrackItem getCurrentlyPlayingTrack() {
+        return mTracks != null ? mTracks.get(mCurrentSong) : null;
     }
 
 }

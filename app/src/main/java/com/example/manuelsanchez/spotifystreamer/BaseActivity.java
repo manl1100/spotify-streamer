@@ -27,6 +27,7 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
     protected Context mContext;
 
     private MenuItem mNowPlayingMenuItem;
+    private MenuItem mShareCurrentTrackMenuItem;
 
     private boolean mBound;
     private ServiceConnection mConnection = new ServiceConnection() {
@@ -58,16 +59,12 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         getMenuInflater().inflate(R.menu.menu_artist_search, menu);
 
         mNowPlayingMenuItem = menu.findItem(R.id.action_now_playing);
+        mShareCurrentTrackMenuItem = menu.findItem(R.id.menu_item_share);
 
-        MenuItem shareItem = menu.findItem(R.id.menu_item_share);
         mShareActionProvider = new ShareActionProvider(this);
+        MenuItem shareItem = menu.findItem(R.id.menu_item_share);
+        shareItem.setActionProvider(mShareActionProvider);
 
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, "This is my text to send.");
-        sendIntent.setType("text/plain");
-
-        mShareActionProvider.setShareIntent(sendIntent);
         return true;
     }
 
@@ -98,26 +95,30 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
     @Override
     public void onPlaybackStatusChange(String status) {
         if (status.equals(ACTION_PLAY)) {
-            displayNowPlayingMenuItem();
+            displayMenuItems();
+            updateShareIntent(mMusicPlayerService.getCurrentlyPlayingTrack());
         } else if (status.equals(ACTION_IDLE)) {
-            hideNowPlayingMenuItem();
+            hideMenuItems();
         }
     }
 
-    protected void displayNowPlayingMenuItem() {
+    protected void displayMenuItems() {
         mNowPlayingMenuItem.setVisible(true);
+        mShareCurrentTrackMenuItem.setVisible(true);
+
     }
 
-    protected void hideNowPlayingMenuItem() {
+    protected void hideMenuItems() {
         mNowPlayingMenuItem.setVisible(false);
+        mShareCurrentTrackMenuItem.setVisible(false);
     }
 
-    public void setShareActionProvider(ShareActionProvider mShareActionProvider) {
-        this.mShareActionProvider = mShareActionProvider;
-    }
-
-    public void shareTrack(Intent shareIntent) {
-        mShareActionProvider.setShareIntent(shareIntent);
+    private void updateShareIntent(ArtistTopTrackItem currentlyPlayingTrack) {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_TEXT, currentlyPlayingTrack.getPreviewUrl());
+        sendIntent.setType("text/plain");
+        mShareActionProvider.setShareIntent(sendIntent);
     }
 
 }
