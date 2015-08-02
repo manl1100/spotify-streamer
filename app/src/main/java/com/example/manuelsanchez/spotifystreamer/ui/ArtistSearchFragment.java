@@ -1,4 +1,4 @@
-package com.example.manuelsanchez.spotifystreamer;
+package com.example.manuelsanchez.spotifystreamer.ui;
 
 import android.app.Activity;
 import android.app.Fragment;
@@ -13,6 +13,7 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistSearchItem;
 import com.example.manuelsanchez.spotifystreamer.util.ArtistSearchTask;
 

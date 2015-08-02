@@ -1,4 +1,4 @@
-package com.example.manuelsanchez.spotifystreamer;
+package com.example.manuelsanchez.spotifystreamer.ui;
 
 import android.content.Context;
 import android.os.Parcelable;
@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistSearchItem;
 import com.squareup.picasso.Picasso;
 

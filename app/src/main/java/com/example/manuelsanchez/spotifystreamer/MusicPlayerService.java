@@ -9,6 +9,7 @@ import android.os.IBinder;
 import android.preference.PreferenceManager;
 
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
+import com.example.manuelsanchez.spotifystreamer.ui.SettingsFragment;
 
 import java.util.ArrayList;
 
@@ -40,7 +41,7 @@ public class MusicPlayerService extends Service implements PlaybackController.On
     }
 
     public class MusicPlayerBinder extends Binder {
-        MusicPlayerService getService() {
+        public MusicPlayerService getService() {
             return MusicPlayerService.this;
         }
     }
@@ -51,7 +52,7 @@ public class MusicPlayerService extends Service implements PlaybackController.On
     }
 
 
-    interface Callback {
+    public interface Callback {
         void onTrackChanged(int trackIndex);
 
         void onPlaybackStatusChange(String status);

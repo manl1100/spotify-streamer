@@ -1,10 +1,11 @@
-package com.example.manuelsanchez.spotifystreamer;
+package com.example.manuelsanchez.spotifystreamer.ui;
 
 import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 
 import java.util.ArrayList;

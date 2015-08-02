@@ -1,4 +1,4 @@
-package com.example.manuelsanchez.spotifystreamer;
+package com.example.manuelsanchez.spotifystreamer.ui;
 
 import android.content.SharedPreferences;
 import android.os.Bundle;
@@ -6,6 +6,8 @@ import android.preference.EditTextPreference;
 import android.preference.Preference;
 import android.preference.PreferenceFragment;
 import android.preference.SwitchPreference;
+
+import com.example.manuelsanchez.spotifystreamer.R;
 
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {

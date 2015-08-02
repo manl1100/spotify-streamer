@@ -10,6 +10,7 @@ import android.graphics.BitmapFactory;
 import android.os.AsyncTask;
 import android.util.Log;
 
+import com.example.manuelsanchez.spotifystreamer.ui.ArtistSearchActivity;
 import com.squareup.picasso.Picasso;
 
 import java.util.concurrent.TimeUnit;

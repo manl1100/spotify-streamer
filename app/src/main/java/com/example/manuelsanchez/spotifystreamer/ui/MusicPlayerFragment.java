@@ -1,4 +1,4 @@
-package com.example.manuelsanchez.spotifystreamer;
+package com.example.manuelsanchez.spotifystreamer.ui;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
@@ -19,6 +19,8 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.example.manuelsanchez.spotifystreamer.MusicPlayerService;
+import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 import com.squareup.picasso.Picasso;
 

@@ -4,7 +4,7 @@ import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
 
-import com.example.manuelsanchez.spotifystreamer.ArtistSearchListAdapter;
+import com.example.manuelsanchez.spotifystreamer.ui.ArtistSearchListAdapter;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistSearchItem;
 
 import java.util.ArrayList;
