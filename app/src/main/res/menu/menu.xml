@@ -5,20 +5,20 @@
 
     <item
         android:id="@+id/action_now_playing"
-        android:title="@string/action_now_playing"
         android:showAsAction="ifRoom"
+        android:title="@string/action_now_playing"
         android:visible="false" />
 
     <item
         android:id="@+id/menu_item_share"
+        android:actionProviderClass="android.widget.ShareActionProvider"
         android:showAsAction="ifRoom"
         android:title="@string/menu_item_share"
-        android:visible="false"
-        android:actionProviderClass="android.widget.ShareActionProvider" />
+        android:visible="false" />
 
     <item
         android:id="@+id/action_settings"
         android:orderInCategory="100"
-        android:title="@string/action_settings"
-        android:showAsAction="never" />
+        android:showAsAction="never"
+        android:title="@string/action_settings" />
 </menu>

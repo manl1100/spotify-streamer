@@ -1,0 +1,16 @@
+<?xml version="1.0" encoding="utf-8"?>
+<PreferenceScreen xmlns:android="http://schemas.android.com/apk/res/android">
+    <EditTextPreference
+        android:title="Country Code"
+        android:defaultValue="US"
+        android:dialogTitle="Country Code"
+        android:key="country_code_pref_key" />
+
+    <SwitchPreference
+        android:contentDescription="Notifications"
+        android:title="Notifications"
+        android:switchTextOff="Off"
+        android:switchTextOn="On"
+        android:defaultValue="true"
+        android:key="notification_pref_key" />
+</PreferenceScreen>

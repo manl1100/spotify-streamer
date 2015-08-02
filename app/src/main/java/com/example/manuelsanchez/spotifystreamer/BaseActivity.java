@@ -56,7 +56,7 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.menu_artist_search, menu);
+        getMenuInflater().inflate(R.menu.menu, menu);
 
         mNowPlayingMenuItem = menu.findItem(R.id.action_now_playing);
         mShareCurrentTrackMenuItem = menu.findItem(R.id.menu_item_share);
@@ -73,6 +73,8 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         int id = item.getItemId();
 
         if (id == R.id.action_settings) {
+            Intent intent = new Intent(getBaseContext(), SettingActivity.class);
+            startActivity(intent);
             return true;
         } else if (id == R.id.menu_item_share) {
             Toast.makeText(this, "Share something", Toast.LENGTH_LONG).show();

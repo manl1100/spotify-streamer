@@ -17,6 +17,7 @@
             android:windowSoftInputMode="stateUnchanged|adjustResize">
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
+
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
@@ -30,6 +31,11 @@
                 android:value=".ArtistSearchActivity" />
         </activity>
 
-        <service android:name="com.example.manuelsanchez.spotifystreamer.MusicPlayerService" />
+        <service android:name=".MusicPlayerService" />
+
+        <activity
+            android:name=".SettingActivity"
+            android:label="@string/title_activity_setting"></activity>
     </application>
+
 </manifest>
