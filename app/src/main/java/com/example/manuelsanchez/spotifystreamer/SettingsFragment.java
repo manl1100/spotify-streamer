@@ -10,6 +10,10 @@ import android.preference.SwitchPreference;
 
 public class SettingsFragment extends PreferenceFragment implements SharedPreferences.OnSharedPreferenceChangeListener {
 
+
+    public static final String NOTIFICATION_PREF = "notification_pref_key";
+    public static final String COUNTRY_CODE_PREF = "country_code_pref_key";
+
     public SettingsFragment() {
     }
 

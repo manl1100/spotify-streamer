@@ -6,6 +6,7 @@ import android.app.PendingIntent;
 import android.app.Service;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.media.AudioManager;
@@ -15,6 +16,7 @@ import android.os.AsyncTask;
 import android.os.Binder;
 import android.os.IBinder;
 import android.os.PowerManager;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.squareup.picasso.Picasso;
@@ -245,25 +247,30 @@ public class MusicPlayerService extends Service implements MediaPlayer.OnPrepare
     }
 
     private void createMediaNotification(String status) {
-        PendingIntent intent = status.equals(ACTION_PLAY) ? mPendingPlayIntent : mPendingPauseIntent;
-        int resource = status.equals(ACTION_PLAY) ? R.drawable.ic_play_arrow_black_18dp : R.drawable.ic_pause_black_18dp;
-        Notification notification = new Notification.Builder(this)
-                .setStyle(new Notification.MediaStyle())
-                .setContentTitle(mTracks.get(mCurrentSong).getTrack())
-                .setTicker("Spotify Streamer")
-                .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setContentText(mTracks.get(mCurrentSong).getArtist())
-                .setSmallIcon(R.drawable.ic_play_arrow_black_48dp)
-                .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
-                .setContentIntent(mPendingActivityIntent)
-                .setOngoing(true)
-                .addAction(R.drawable.ic_skip_previous_black_18dp, "", mPendingPreviousIntent)
-                .addAction(resource, "", intent)
-                .addAction(R.drawable.ic_skip_next_black_18dp, "", mPendingNextIntent)
-                .addAction(R.drawable.ic_clear_black_18dp, "", mPendingCloseIntent)
-                .build();
-        startForeground(MUSIC_PLAYER_SERVICE, notification);
-        mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(this);
+        boolean notificationEnabled = preferences.getBoolean(SettingsFragment.NOTIFICATION_PREF, true);
+        if (notificationEnabled) {
+            PendingIntent intent = status.equals(ACTION_PLAY) ? mPendingPlayIntent : mPendingPauseIntent;
+            int resource = status.equals(ACTION_PLAY) ? R.drawable.ic_play_arrow_black_18dp : R.drawable.ic_pause_black_18dp;
+            Notification notification = new Notification.Builder(this)
+                    .setStyle(new Notification.MediaStyle())
+                    .setContentTitle(mTracks.get(mCurrentSong).getTrack())
+                    .setTicker("Spotify Streamer")
+                    .setVisibility(Notification.VISIBILITY_PUBLIC)
+                    .setContentText(mTracks.get(mCurrentSong).getArtist())
+                    .setSmallIcon(R.drawable.ic_play_arrow_black_48dp)
+                    .setLargeIcon(loadBitMap(mTracks.get(mCurrentSong).getImageUrl()))
+                    .setContentIntent(mPendingActivityIntent)
+                    .setOngoing(true)
+                    .addAction(R.drawable.ic_skip_previous_black_18dp, "", mPendingPreviousIntent)
+                    .addAction(resource, "", intent)
+                    .addAction(R.drawable.ic_skip_next_black_18dp, "", mPendingNextIntent)
+                    .addAction(R.drawable.ic_clear_black_18dp, "", mPendingCloseIntent)
+                    .build();
+            startForeground(MUSIC_PLAYER_SERVICE, notification);
+            mNotificationManager.notify(MUSIC_PLAYER_SERVICE, notification);
+        }
+
     }
 
     public void setCallBack(Callback callBack) {

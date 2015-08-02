@@ -35,8 +35,9 @@ public class ArtistTopTracksTask extends AsyncTask<String, Void, List<ArtistTopT
             try {
                 SpotifyService service = api.getService();
                 String query = params[0];
+                String countryCode = params[1];
                 Map<String, Object> options = new HashMap<String, Object>();
-                options.put(SpotifyService.COUNTRY, "US");
+                options.put(SpotifyService.COUNTRY, countryCode);
                 tracks.addAll(transform(service.getArtistTopTrack(query, options).tracks));
             } catch (RetrofitError e) {
                 Log.e(LOG_TAG, "RetrofitError: " + e.getMessage());

@@ -2,7 +2,9 @@ package com.example.manuelsanchez.spotifystreamer;
 
 import android.app.Activity;
 import android.app.Fragment;
+import android.content.SharedPreferences;
 import android.os.Bundle;
+import android.preference.PreferenceManager;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -49,7 +51,7 @@ public class ArtistTopTracksFragment extends Fragment {
             mArtistTopTracksListAdapter.addAll(topTracks);
         } else {
             String selectedArtist = getActivity().getIntent().getStringExtra(SELECTED_ARTIST_ID);
-            new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(selectedArtist);
+            displayArtistTracks(selectedArtist);
         }
 
         return view;
@@ -62,7 +64,10 @@ public class ArtistTopTracksFragment extends Fragment {
     }
 
     public void displayArtistTracks(String artistId) {
-        new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(artistId);
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
+        String countryCode = preferences.getString(SettingsFragment.COUNTRY_CODE_PREF, "US");
+
+        new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(artistId, countryCode);
     }
 
     private AdapterView.OnItemClickListener trackSelectionOnClickListener() {
