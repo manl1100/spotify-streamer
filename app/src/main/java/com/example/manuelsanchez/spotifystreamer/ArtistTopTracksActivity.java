@@ -3,6 +3,8 @@ package com.example.manuelsanchez.spotifystreamer;
 import android.app.FragmentTransaction;
 import android.os.Bundle;
 
+import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
+
 import java.util.ArrayList;
 
 public class ArtistTopTracksActivity extends BaseActivity implements ArtistTopTracksFragment.OnTrackSelectedListener {

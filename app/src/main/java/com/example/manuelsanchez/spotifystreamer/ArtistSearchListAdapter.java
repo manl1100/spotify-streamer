@@ -9,6 +9,7 @@ import android.widget.ArrayAdapter;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.example.manuelsanchez.spotifystreamer.model.ArtistSearchItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;

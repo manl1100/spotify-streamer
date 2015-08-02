@@ -19,6 +19,7 @@ import android.widget.SeekBar;
 import android.widget.TextView;
 import android.widget.ToggleButton;
 
+import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -27,13 +28,12 @@ import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PREV;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_RESUME;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 
-public class MusicPlayerFragment extends DialogFragment implements MusicPlayerService.Callback, MusicPlayerService.StatusChangeListener {
+public class MusicPlayerFragment extends DialogFragment implements MusicPlayerService.Callback {
 
     private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
@@ -136,15 +136,18 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         @Override
         public void onClick(View view) {
             boolean isPlay = ((ToggleButton) view).isChecked();
+            Intent intent;
             if (isPlay) {
-                Intent intent = new Intent(mContext, MusicPlayerService.class);
-                intent.setAction(ACTION_RESUME);
-                mContext.startService(intent);
+                intent = new Intent(mContext, MusicPlayerService.class);
+                intent.setAction(ACTION_PLAY);
+                intent.putParcelableArrayListExtra(TRACK_ITEMS, mTracks);
+                intent.putExtra(TRACK_INDEX, mCurrentTrackIndex);
             } else {
-                Intent intent = new Intent(mContext, MusicPlayerService.class);
+                intent = new Intent(mContext, MusicPlayerService.class);
                 intent.setAction(ACTION_PAUSE);
-                mContext.startService(intent);
             }
+            mContext.startService(intent);
+
         }
     };
 
@@ -178,7 +181,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             musicPlayerService = binder.getService();
             musicPlayerService.setCallBack(MusicPlayerFragment.this);
-            musicPlayerService.setStatusChangeListener(MusicPlayerFragment.this);
+            musicPlayerService.setCallBack(MusicPlayerFragment.this);
 
             Intent intent = new Intent(mContext, MusicPlayerService.class);
             intent.setAction(ACTION_PLAY);

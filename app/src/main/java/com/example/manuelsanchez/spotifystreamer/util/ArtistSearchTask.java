@@ -1,8 +1,11 @@
-package com.example.manuelsanchez.spotifystreamer;
+package com.example.manuelsanchez.spotifystreamer.util;
 
 import android.os.AsyncTask;
 import android.util.Log;
 import android.widget.Toast;
+
+import com.example.manuelsanchez.spotifystreamer.ArtistSearchListAdapter;
+import com.example.manuelsanchez.spotifystreamer.model.ArtistSearchItem;
 
 import java.util.ArrayList;
 import java.util.List;

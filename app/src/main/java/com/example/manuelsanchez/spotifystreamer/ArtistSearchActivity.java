@@ -5,6 +5,8 @@ import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
 
+import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
+
 import java.util.ArrayList;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.SELECTED_ARTIST_ID;
@@ -48,4 +50,6 @@ public class ArtistSearchActivity extends BaseActivity
         MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(tracks, trackIndex);
         musicPlayerFragment.show(fragmentManager, "dialog");
     }
+
+
 }

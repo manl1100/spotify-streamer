@@ -11,6 +11,9 @@ import android.view.ViewGroup;
 import android.widget.AdapterView;
 import android.widget.ListView;
 
+import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
+import com.example.manuelsanchez.spotifystreamer.util.ArtistTopTracksTask;
+
 import java.util.ArrayList;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.SELECTED_ARTIST_ID;

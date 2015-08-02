@@ -13,6 +13,9 @@ import android.widget.EditText;
 import android.widget.ListView;
 import android.widget.TextView;
 
+import com.example.manuelsanchez.spotifystreamer.model.ArtistSearchItem;
+import com.example.manuelsanchez.spotifystreamer.util.ArtistSearchTask;
+
 import java.util.ArrayList;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ARTIST_ITEMS;

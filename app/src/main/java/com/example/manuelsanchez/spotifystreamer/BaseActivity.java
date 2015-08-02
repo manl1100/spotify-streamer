@@ -9,15 +9,17 @@ import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
-import android.widget.Toast;
+
+import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
 
 /**
  * Created by Manuel Sanchez on 7/26/15
  */
-public abstract class BaseActivity extends Activity implements MusicPlayerService.StatusChangeListener {
+public abstract class BaseActivity extends Activity implements MusicPlayerService.Callback {
 
     protected MusicPlayerService mMusicPlayerService;
     private ShareActionProvider mShareActionProvider;
@@ -32,7 +34,7 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         public void onServiceConnected(ComponentName className, IBinder service) {
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             mMusicPlayerService = binder.getService();
-            mMusicPlayerService.setStatusChangeListener(BaseActivity.this);
+            mMusicPlayerService.setCallBack(BaseActivity.this);
         }
 
         @Override
@@ -85,9 +87,14 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         if (status.equals(ACTION_PLAY)) {
             displayMenuItems();
             updateShareIntent(mMusicPlayerService.getCurrentlyPlayingTrack());
-        } else if (status.equals(ACTION_IDLE)) {
+        } else if (status.equals(ACTION_IDLE) || status.equals(ACTION_PAUSE)) {
             hideMenuItems();
         }
+    }
+
+    @Override
+    public void onTrackChanged(int trackIndex) {
+
     }
 
     protected void displayMenuItems() {
@@ -102,9 +109,10 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
     }
 
     private void updateShareIntent(ArtistTopTrackItem currentlyPlayingTrack) {
+        String shareLink = currentlyPlayingTrack == null ? "" : currentlyPlayingTrack.getPreviewUrl();
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_TEXT, currentlyPlayingTrack.getPreviewUrl());
+        sendIntent.putExtra(Intent.EXTRA_TEXT, shareLink);
         sendIntent.setType("text/plain");
         mShareActionProvider.setShareIntent(sendIntent);
     }

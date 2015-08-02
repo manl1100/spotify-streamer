@@ -9,7 +9,6 @@ public class SpotifyStreamerConstants {
     public static final String ACTION_PREV = "com.example.spotifystreamer.action.PREV";
     public static final String ACTION_NEXT = "com.example.spotifystreamer.action.NEXT";
     public static final String ACTION_PAUSE = "com.example.spotifystreamer.action.PAUSE";
-    public static final String ACTION_RESUME = "com.example.spotifystreamer.action.RESUME";
     public static final String ACTION_CLOSE = "com.example.spotifystreamer.action.CLOSE";
     public static final String ACTION_IDLE = "com.example.spotifystreamer.action.IDLE";
 
