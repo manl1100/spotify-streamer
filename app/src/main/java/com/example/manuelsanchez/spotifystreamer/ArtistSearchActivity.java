@@ -28,8 +28,6 @@ public class ArtistSearchActivity extends BaseActivity
         View topTrackView = findViewById(R.id.fragment_top_tracks);
         mIsTwoPane = topTrackView != null && topTrackView.getVisibility() == View.VISIBLE;
 
-        mSearchActivity.setOnArtistSelectedListener(this);
-
     }
 
     @Override

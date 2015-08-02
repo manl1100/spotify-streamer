@@ -1,5 +1,6 @@
 package com.example.manuelsanchez.spotifystreamer;
 
+import android.app.Activity;
 import android.app.Fragment;
 import android.os.Bundle;
 import android.view.KeyEvent;
@@ -31,6 +32,12 @@ public class ArtistSearchFragment extends Fragment {
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mOnArtistSelectedListener = (OnArtistSelectedListener) activity;
+    }
+
+    @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container, Bundle savedInstanceState) {
         View view = inflater.inflate(R.layout.fragment_artist_search, container, false);
 
@@ -54,10 +61,6 @@ public class ArtistSearchFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(ARTIST_ITEMS, mArtistListAdapter.getItems());
-    }
-
-    public void setOnArtistSelectedListener(OnArtistSelectedListener mOnArtistSelectedListener) {
-        this.mOnArtistSelectedListener = mOnArtistSelectedListener;
     }
 
     private AdapterView.OnItemClickListener artistOnClickListener() {
