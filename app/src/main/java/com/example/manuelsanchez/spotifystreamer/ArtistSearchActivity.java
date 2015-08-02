@@ -8,8 +8,6 @@ import android.view.View;
 import java.util.ArrayList;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.SELECTED_ARTIST_ID;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 
 public class ArtistSearchActivity extends BaseActivity
@@ -19,7 +17,6 @@ public class ArtistSearchActivity extends BaseActivity
     private ArtistTopTracksFragment mTopTrackActivity;
     private boolean mIsTwoPane;
 
-
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -27,6 +24,7 @@ public class ArtistSearchActivity extends BaseActivity
 
         mSearchActivity = (ArtistSearchFragment) getFragmentManager().findFragmentById(R.id.fragment_search);
         mTopTrackActivity = (ArtistTopTracksFragment) getFragmentManager().findFragmentById(R.id.fragment_top_tracks);
+
         View topTrackView = findViewById(R.id.fragment_top_tracks);
         mIsTwoPane = topTrackView != null && topTrackView.getVisibility() == View.VISIBLE;
 
@@ -49,14 +47,7 @@ public class ArtistSearchActivity extends BaseActivity
     @Override
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> tracks, int trackIndex) {
         FragmentManager fragmentManager = getFragmentManager();
-        MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(TRACK_ITEMS, tracks);
-        bundle.putInt(TRACK_INDEX, trackIndex);
-
-        musicPlayerFragment.setArguments(bundle);
+        MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(tracks, trackIndex);
         musicPlayerFragment.show(fragmentManager, "dialog");
     }
-
 }

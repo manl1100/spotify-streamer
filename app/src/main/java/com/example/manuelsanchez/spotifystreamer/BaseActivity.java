@@ -5,7 +5,6 @@ import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
 import android.content.ServiceConnection;
-import android.os.Bundle;
 import android.os.IBinder;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -14,8 +13,6 @@ import android.widget.Toast;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 /**
  * Created by Manuel Sanchez on 7/26/15
@@ -81,12 +78,7 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         } else if (id == R.id.action_now_playing) {
             Toast.makeText(this, "Now playing", Toast.LENGTH_LONG).show();
             if (mMusicPlayerService.getTracks() != null) {
-                Bundle bundle = new Bundle();
-                bundle.putParcelableArrayList(TRACK_ITEMS, mMusicPlayerService.getTracks());
-                bundle.putInt(TRACK_INDEX, mMusicPlayerService.getCurrentIndex());
-
-                MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
-                musicPlayerFragment.setArguments(bundle);
+                MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(mMusicPlayerService.getTracks(), mMusicPlayerService.getCurrentIndex());
                 musicPlayerFragment.show(getFragmentManager(), "dialog");
             }
         }

@@ -5,9 +5,6 @@ import android.os.Bundle;
 
 import java.util.ArrayList;
 
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
-
 public class ArtistTopTracksActivity extends BaseActivity implements ArtistTopTracksFragment.OnTrackSelectedListener {
 
     @Override
@@ -18,12 +15,7 @@ public class ArtistTopTracksActivity extends BaseActivity implements ArtistTopTr
 
     @Override
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> artistTracks, int trackIndex) {
-        MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
-
-        Bundle bundle = new Bundle();
-        bundle.putParcelableArrayList(TRACK_ITEMS, artistTracks);
-        bundle.putInt(TRACK_INDEX, trackIndex);
-        musicPlayerFragment.setArguments(bundle);
+        MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(artistTracks, trackIndex);
 
         FragmentTransaction fragmentTransaction = getFragmentManager().beginTransaction();
         fragmentTransaction.replace(R.id.top_tracks_container, musicPlayerFragment, "music_fragment");

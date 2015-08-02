@@ -59,6 +59,15 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     public MusicPlayerFragment() {
     }
 
+    public static MusicPlayerFragment newInstance(ArrayList<ArtistTopTrackItem> tracks, int trackIndex) {
+        MusicPlayerFragment musicPlayerFragment = new MusicPlayerFragment();
+        Bundle bundle = new Bundle();
+        bundle.putParcelableArrayList(TRACK_ITEMS, tracks);
+        bundle.putInt(TRACK_INDEX, trackIndex);
+        musicPlayerFragment.setArguments(bundle);
+        return musicPlayerFragment;
+    }
+
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
