@@ -60,7 +60,6 @@ public class ArtistSearchListAdapter extends ArrayAdapter<ArtistSearchItem> {
         return mArtistSearchItems;
     }
 
-
     private class ViewHolder {
         public final TextView artistName;
         public final ImageView artistImage;

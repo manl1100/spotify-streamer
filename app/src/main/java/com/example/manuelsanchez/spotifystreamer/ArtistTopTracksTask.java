@@ -30,13 +30,13 @@ public class ArtistTopTracksTask extends AsyncTask<String, Void, List<ArtistTopT
 
     @Override
     protected List<ArtistTopTrackItem> doInBackground(String... params) {
-        List<ArtistTopTrackItem> tracks = new ArrayList<ArtistTopTrackItem>();
+        List<ArtistTopTrackItem> tracks = new ArrayList<>();
         if (params.length > 0) {
             try {
                 SpotifyService service = api.getService();
                 String query = params[0];
                 String countryCode = params[1];
-                Map<String, Object> options = new HashMap<String, Object>();
+                Map<String, Object> options = new HashMap<>();
                 options.put(SpotifyService.COUNTRY, countryCode);
                 tracks.addAll(transform(service.getArtistTopTrack(query, options).tracks));
             } catch (RetrofitError e) {
@@ -63,7 +63,7 @@ public class ArtistTopTracksTask extends AsyncTask<String, Void, List<ArtistTopT
     }
 
     private List<ArtistTopTrackItem> transform(List<Track> tracks) {
-        List<ArtistTopTrackItem> trackItems = new ArrayList<ArtistTopTrackItem>();
+        List<ArtistTopTrackItem> trackItems = new ArrayList<>();
         for (Track track : tracks) {
             ArtistTopTrackItem trackItem = new ArtistTopTrackItem();
             trackItem.setArtist(track.artists.get(0).name);

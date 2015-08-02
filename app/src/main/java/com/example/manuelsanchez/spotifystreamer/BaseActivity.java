@@ -26,7 +26,6 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
     private MenuItem mNowPlayingMenuItem;
     private MenuItem mShareCurrentTrackMenuItem;
 
-    private boolean mBound;
     private ServiceConnection mConnection = new ServiceConnection() {
 
         @Override
@@ -34,12 +33,10 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             mMusicPlayerService = binder.getService();
             mMusicPlayerService.setStatusChangeListener(BaseActivity.this);
-            mBound = true;
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
         }
     };
 
@@ -73,10 +70,7 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
             Intent intent = new Intent(getBaseContext(), SettingActivity.class);
             startActivity(intent);
             return true;
-        } else if (id == R.id.menu_item_share) {
-            Toast.makeText(this, "Share something", Toast.LENGTH_LONG).show();
         } else if (id == R.id.action_now_playing) {
-            Toast.makeText(this, "Now playing", Toast.LENGTH_LONG).show();
             if (mMusicPlayerService.getTracks() != null) {
                 MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(mMusicPlayerService.getTracks(), mMusicPlayerService.getCurrentIndex());
                 musicPlayerFragment.show(getFragmentManager(), "dialog");

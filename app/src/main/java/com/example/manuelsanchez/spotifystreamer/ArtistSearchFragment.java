@@ -49,42 +49,37 @@ public class ArtistSearchFragment extends Fragment {
 
         ListView searchResultListView = (ListView) view.findViewById(R.id.music_list_view);
         searchResultListView.setAdapter(mArtistListAdapter);
-        searchResultListView.setOnItemClickListener(artistOnClickListener());
+        searchResultListView.setOnItemClickListener(artistOnClickListener);
 
         EditText artistSearchEditText = (EditText) view.findViewById(R.id.music_search_input);
-        artistSearchEditText.setOnEditorActionListener(editorActionListener());
+        artistSearchEditText.setOnEditorActionListener(editorActionListener);
 
         return view;
     }
+
+    private AdapterView.OnItemClickListener artistOnClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            ArtistSearchItem selectedArtist = (ArtistSearchItem) ((ListView) parent).getAdapter().getItem(position);
+            mOnArtistSelectedListener.onArtistSelected(selectedArtist.getArtistId());
+        }
+    };
+
+    private TextView.OnEditorActionListener editorActionListener = new TextView.OnEditorActionListener() {
+        @Override
+        public boolean onEditorAction(TextView searchInput, int actionId, KeyEvent event) {
+            if (actionId == EditorInfo.IME_ACTION_SEARCH) {
+                if (searchInput.getText().length() > 0) {
+                    new ArtistSearchTask(mArtistListAdapter).execute(searchInput.getText().toString());
+                }
+            }
+            return false;
+        }
+    };
 
     @Override
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
         outState.putParcelableArrayList(ARTIST_ITEMS, mArtistListAdapter.getItems());
     }
-
-    private AdapterView.OnItemClickListener artistOnClickListener() {
-        return new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ArtistSearchItem selectedArtist = (ArtistSearchItem) ((ListView) parent).getAdapter().getItem(position);
-                mOnArtistSelectedListener.onArtistSelected(selectedArtist.getArtistId());
-            }
-        };
-    }
-
-    private TextView.OnEditorActionListener editorActionListener() {
-        return new TextView.OnEditorActionListener() {
-            @Override
-            public boolean onEditorAction(TextView searchInput, int actionId, KeyEvent event) {
-                if (actionId == EditorInfo.IME_ACTION_SEARCH) {
-                    if (searchInput.getText().length() > 0) {
-                        new ArtistSearchTask(mArtistListAdapter).execute(searchInput.getText().toString());
-                    }
-                }
-                return false;
-            }
-        };
-    }
-
 }

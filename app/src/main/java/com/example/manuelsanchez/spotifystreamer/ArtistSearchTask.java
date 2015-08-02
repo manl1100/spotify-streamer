@@ -28,7 +28,7 @@ public class ArtistSearchTask extends AsyncTask<String, Void, List<ArtistSearchI
 
     @Override
     protected List<ArtistSearchItem> doInBackground(String... params) {
-        List<ArtistSearchItem> artists = new ArrayList<ArtistSearchItem>();
+        List<ArtistSearchItem> artists = new ArrayList<>();
         if (params.length > 0) {
             try {
                 String query = params[0];
@@ -57,7 +57,7 @@ public class ArtistSearchTask extends AsyncTask<String, Void, List<ArtistSearchI
     }
 
     private List<ArtistSearchItem> transform(List<Artist> artists) {
-        List<ArtistSearchItem> transformedArtists = new ArrayList<ArtistSearchItem>();
+        List<ArtistSearchItem> transformedArtists = new ArrayList<>();
         for (Artist artist : artists) {
             ArtistSearchItem searchItem = new ArtistSearchItem(getImageUrl(artist), artist.id, artist.name);
             transformedArtists.add(searchItem);
@@ -72,5 +72,4 @@ public class ArtistSearchTask extends AsyncTask<String, Void, List<ArtistSearchI
         }
         return null;
     }
-
 }

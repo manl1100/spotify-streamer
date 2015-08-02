@@ -41,7 +41,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     private int mCurrentTrackIndex;
     private Context mContext;
     private MusicPlayerService musicPlayerService;
-    private boolean mBound;
     private TextView artistTextView;
     private TextView albumTextView;
     private TextView elapsed;
@@ -52,9 +51,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     private Button previous;
     private ToggleButton playPause;
     private Button next;
-
-    private String playbackState;
-
 
     public MusicPlayerFragment() {
     }
@@ -95,7 +91,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         albumTextView = (TextView) musicPlayerView.findViewById(R.id.artist_album);
         albumCover = (ImageView) musicPlayerView.findViewById(R.id.artist_album_cover);
         trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
-        updateTrack();
 
         elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
         elapsed.setText("0:00");
@@ -106,14 +101,15 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         mSeekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
 
         previous = (Button) musicPlayerView.findViewById(R.id.rewind);
-        previous.setOnClickListener(onPreviousTrackClickListener());
+        previous.setOnClickListener(onPreviousTrackClickListener);
 
         playPause = (ToggleButton) musicPlayerView.findViewById(R.id.pause);
-        playPause.setOnClickListener(onPlayPauseClickListener());
+        playPause.setOnClickListener(onPlayPauseClickListener);
 
         next = (Button) musicPlayerView.findViewById(R.id.forward);
-        next.setOnClickListener(onNextTrackClickListener());
+        next.setOnClickListener(onNextTrackClickListener);
 
+        updateTrack();
         return musicPlayerView;
     }
 
@@ -136,49 +132,43 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         trackTextView.setText(mTracks.get(mCurrentTrackIndex).getTrack());
     }
 
-    private View.OnClickListener onPlayPauseClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                boolean isPlay = ((ToggleButton) view).isChecked();
-                if (isPlay) {
-                    Intent intent = new Intent(mContext, MusicPlayerService.class);
-                    intent.setAction(ACTION_RESUME);
-                    mContext.startService(intent);
-                } else {
-                    Intent intent = new Intent(mContext, MusicPlayerService.class);
-                    intent.setAction(ACTION_PAUSE);
-                    mContext.startService(intent);
-                }
-            }
-        };
-    }
-
-    private View.OnClickListener onNextTrackClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mCurrentTrackIndex = mCurrentTrackIndex == mTracks.size() - 1 ? mCurrentTrackIndex : ++mCurrentTrackIndex;
+    private View.OnClickListener onPlayPauseClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            boolean isPlay = ((ToggleButton) view).isChecked();
+            if (isPlay) {
                 Intent intent = new Intent(mContext, MusicPlayerService.class);
-                intent.setAction(ACTION_NEXT);
+                intent.setAction(ACTION_RESUME);
                 mContext.startService(intent);
-                updateTrack();
-            }
-        };
-    }
-
-    private View.OnClickListener onPreviousTrackClickListener() {
-        return new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                mCurrentTrackIndex = mCurrentTrackIndex == 0 ? mCurrentTrackIndex : --mCurrentTrackIndex;
+            } else {
                 Intent intent = new Intent(mContext, MusicPlayerService.class);
-                intent.setAction(ACTION_PREV);
+                intent.setAction(ACTION_PAUSE);
                 mContext.startService(intent);
-                updateTrack();
             }
-        };
-    }
+        }
+    };
+
+    private View.OnClickListener onNextTrackClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mCurrentTrackIndex = mCurrentTrackIndex == mTracks.size() - 1 ? mCurrentTrackIndex : ++mCurrentTrackIndex;
+            Intent intent = new Intent(mContext, MusicPlayerService.class);
+            intent.setAction(ACTION_NEXT);
+            mContext.startService(intent);
+            updateTrack();
+        }
+    };
+
+    private View.OnClickListener onPreviousTrackClickListener = new View.OnClickListener() {
+        @Override
+        public void onClick(View view) {
+            mCurrentTrackIndex = mCurrentTrackIndex == 0 ? mCurrentTrackIndex : --mCurrentTrackIndex;
+            Intent intent = new Intent(mContext, MusicPlayerService.class);
+            intent.setAction(ACTION_PREV);
+            mContext.startService(intent);
+            updateTrack();
+        }
+    };
 
     private ServiceConnection mConnection = new ServiceConnection() {
 
@@ -189,7 +179,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
             musicPlayerService = binder.getService();
             musicPlayerService.setCallBack(MusicPlayerFragment.this);
             musicPlayerService.setStatusChangeListener(MusicPlayerFragment.this);
-            mBound = true;
 
             Intent intent = new Intent(mContext, MusicPlayerService.class);
             intent.setAction(ACTION_PLAY);
@@ -200,7 +189,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
-            mBound = false;
         }
     };
 
@@ -215,7 +203,6 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     public void onPlaybackStatusChange(String status) {
         Log.d(LOG_TAG, "onPlaybackStatusChange");
         playPause.setChecked(status.equals(ACTION_PLAY));
-        playbackState = status;
     }
 
     @Override

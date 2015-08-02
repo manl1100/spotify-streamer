@@ -44,7 +44,7 @@ public class ArtistTopTracksFragment extends Fragment {
 
         ListView trackListView = (ListView) view.findViewById(R.id.artist_top_ten_list_view);
         trackListView.setAdapter(mArtistTopTracksListAdapter);
-        trackListView.setOnItemClickListener(trackSelectionOnClickListener());
+        trackListView.setOnItemClickListener(trackSelectionOnClickListener);
 
         if (savedInstanceState != null) {
             ArrayList<ArtistTopTrackItem> topTracks = savedInstanceState.getParcelableArrayList(TRACK_ITEMS);
@@ -57,12 +57,6 @@ public class ArtistTopTracksFragment extends Fragment {
         return view;
     }
 
-    @Override
-    public void onSaveInstanceState(Bundle outState) {
-        super.onSaveInstanceState(outState);
-        outState.putParcelableArrayList(TRACK_ITEMS, mArtistTopTracksListAdapter.getItems());
-    }
-
     public void displayArtistTracks(String artistId) {
         SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(getActivity());
         String countryCode = preferences.getString(SettingsFragment.COUNTRY_CODE_PREF, "US");
@@ -70,16 +64,20 @@ public class ArtistTopTracksFragment extends Fragment {
         new ArtistTopTracksTask(mArtistTopTracksListAdapter).execute(artistId, countryCode);
     }
 
-    private AdapterView.OnItemClickListener trackSelectionOnClickListener() {
-        return new AdapterView.OnItemClickListener() {
-            @Override
-            public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
-                ArrayList<ArtistTopTrackItem> artistTracks = mArtistTopTracksListAdapter.getItems();
-                if (mOnTrackSelectedListener != null) {
-                    mOnTrackSelectedListener.onTrackSelected(artistTracks, position);
-                }
+    private AdapterView.OnItemClickListener trackSelectionOnClickListener = new AdapterView.OnItemClickListener() {
+        @Override
+        public void onItemClick(AdapterView<?> parent, View view, int position, long id) {
+            ArrayList<ArtistTopTrackItem> artistTracks = mArtistTopTracksListAdapter.getItems();
+            if (mOnTrackSelectedListener != null) {
+                mOnTrackSelectedListener.onTrackSelected(artistTracks, position);
             }
-        };
+        }
+    };
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putParcelableArrayList(TRACK_ITEMS, mArtistTopTracksListAdapter.getItems());
     }
 
 }
