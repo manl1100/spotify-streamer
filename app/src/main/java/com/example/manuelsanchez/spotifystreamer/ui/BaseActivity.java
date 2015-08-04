@@ -36,11 +36,12 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         public void onServiceConnected(ComponentName className, IBinder service) {
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             mMusicPlayerService = binder.getService();
-            mMusicPlayerService.setCallBack(BaseActivity.this);
+            mMusicPlayerService.registerCallback(BaseActivity.this);
         }
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            mMusicPlayerService.unregisterCallback(BaseActivity.this);
         }
     };
 

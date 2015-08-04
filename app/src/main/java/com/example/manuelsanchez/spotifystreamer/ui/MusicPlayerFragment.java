@@ -182,8 +182,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
                                        IBinder service) {
             MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
             musicPlayerService = binder.getService();
-            musicPlayerService.setCallBack(MusicPlayerFragment.this);
-            musicPlayerService.setCallBack(MusicPlayerFragment.this);
+            musicPlayerService.registerCallback(MusicPlayerFragment.this);
 
             Intent intent = new Intent(mContext, MusicPlayerService.class);
             intent.setAction(ACTION_PLAY);
@@ -194,6 +193,7 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
 
         @Override
         public void onServiceDisconnected(ComponentName arg0) {
+            musicPlayerService.unregisterCallback(MusicPlayerFragment.this);
         }
     };
 

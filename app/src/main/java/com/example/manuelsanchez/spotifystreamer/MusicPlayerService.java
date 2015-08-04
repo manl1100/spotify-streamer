@@ -114,12 +114,6 @@ public class MusicPlayerService extends Service implements PlaybackController.On
         fireStatusChangeEvent(ACTION_PAUSE);
     }
 
-    private void resumePlayer() {
-        playbackController.resume();
-        createNotificationIfNeeded(ACTION_PAUSE);
-        fireStatusChangeEvent(ACTION_PLAY);
-    }
-
     private void stopPlayer() {
         stopForeground(true);
         playbackController.stop();
@@ -157,11 +151,16 @@ public class MusicPlayerService extends Service implements PlaybackController.On
             callback.onPlaybackStatusChange(status);
         }
     }
-    public void setCallBack(Callback callBack) {
+
+    public void registerCallback(Callback callBack) {
         if (callBacks == null) {
             callBacks = new ArrayList<>();
         }
         callBacks.add(callBack);
+    }
+
+    public void unregisterCallback(Callback callback) {
+        callBacks.remove(callback);
     }
 
     public ArrayList<ArtistTopTrackItem> getTracks() {
