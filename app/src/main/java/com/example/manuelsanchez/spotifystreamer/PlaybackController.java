@@ -3,8 +3,6 @@ package com.example.manuelsanchez.spotifystreamer;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
-import android.net.wifi.WifiManager;
-import android.os.PowerManager;
 import android.util.Log;
 
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
@@ -12,14 +10,14 @@ import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 import java.util.ArrayList;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
 
 /**
  * Created by Manuel Sanchez on 8/2/15
  */
 public class PlaybackController implements MediaPlayer.OnPreparedListener,
-        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener
-        /*AudioManager.OnAudioFocusChangeListener*/ {
+        MediaPlayer.OnErrorListener, MediaPlayer.OnCompletionListener {
 
     private static final String LOG_TAG = PlaybackController.class.getSimpleName();
 
@@ -29,20 +27,23 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     private ArrayList<ArtistTopTrackItem> tracks;
     private int currentIndex;
 
-    private static Context mContext;
     private OnCompletionCallback onCompletionCallback;
 
+    private ArrayList<Callback> callBacks;
+
+    private PlaybackState playbackState = PlaybackState.IDLE;
+
+    public interface Callback {
+        void onTrackChanged(int trackIndex);
+
+        void onPlaybackStatusChange(String status);
+    }
 
     public interface OnCompletionCallback {
         void onCompletion(String status);
     }
 
     private PlaybackController() {
-    }
-
-    public static PlaybackController create(Context context) {
-        mContext = context;
-        return getInstance();
     }
 
     public static PlaybackController getInstance() {
@@ -53,35 +54,43 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     public void play(ArrayList<ArtistTopTrackItem> topTrackItems, int trackIndex) {
-        if (tracks == null || !isTrackCurrentlyPlaying(tracks, trackIndex)) {
+        if (tracks == null || !isTrackCurrentlyPlaying(tracks, trackIndex) || playbackState.equals(PlaybackState.IDLE)) {
             tracks = topTrackItems;
             currentIndex = trackIndex;
             initializeMediaPlayer();
-        } else if (!mMediaPlayer.isPlaying()) {
+        } else if (playbackState.equals(PlaybackState.PAUSED)) {
             mMediaPlayer.start();
         }
+        fireStatusChangeEvent(ACTION_PLAY);
+
     }
 
     public void next() {
         currentIndex = currentIndex == tracks.size() - 1 ? currentIndex : ++currentIndex;
         initializeMediaPlayer();
+        fireTrackChangeEvent(getCurrentIndex());
+
     }
 
     public void previous() {
         currentIndex = currentIndex == 0 ? currentIndex : --currentIndex;
         initializeMediaPlayer();
+        fireTrackChangeEvent(getCurrentIndex());
+
     }
 
     public void pause() {
+        playbackState = PlaybackState.PAUSED;
         mMediaPlayer.pause();
-    }
+        fireStatusChangeEvent(ACTION_PAUSE);
 
-    public void resume() {
-        mMediaPlayer.start();
     }
 
     public void stop() {
+        playbackState = PlaybackState.IDLE;
         mMediaPlayer.reset();
+        fireStatusChangeEvent(ACTION_PAUSE);
+
     }
 
 //    @Override
@@ -114,7 +123,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     private void initializeMediaPlayer() {
-        if (mMediaPlayer != null && mMediaPlayer.isPlaying()) {
+        if (mMediaPlayer != null) {
             mMediaPlayer.reset();
         } else {
             mMediaPlayer = new MediaPlayer();
@@ -126,10 +135,10 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
             mMediaPlayer.setOnPreparedListener(this);
             mMediaPlayer.setOnErrorListener(this);
             mMediaPlayer.setOnCompletionListener(this);
-            mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
-            WifiManager.WifiLock wifiLock = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE))
-                    .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
-            wifiLock.acquire();
+//            mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
+//            WifiManager.WifiLock wifiLock = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE))
+//                    .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+//            wifiLock.acquire();
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
             Log.e(LOG_TAG, "Media Player error: " + e.getMessage());
@@ -148,10 +157,13 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     public void onCompletion(MediaPlayer mediaPlayer) {
         if (currentIndex == tracks.size() - 1) {
             onCompletionCallback.onCompletion(ACTION_IDLE);
+            fireTrackChangeEvent(getCurrentIndex());
+            fireStatusChangeEvent(ACTION_IDLE);
         } else {
             ++currentIndex;
             initializeMediaPlayer();
             onCompletionCallback.onCompletion(ACTION_PLAY);
+            fireTrackChangeEvent(getCurrentIndex());
         }
     }
 
@@ -163,6 +175,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
+        playbackState = PlaybackState.PLAY;
         mMediaPlayer.start();
     }
 
@@ -188,5 +201,32 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 
     public String getCurrentlyPlayingImageUrl() {
         return tracks.get(currentIndex).getImageUrl();
+    }
+
+    private void fireTrackChangeEvent(int index) {
+        for (Callback callback : callBacks) {
+            callback.onTrackChanged(index);
+        }
+    }
+
+    private void fireStatusChangeEvent(String status) {
+        for (Callback callback : callBacks) {
+            callback.onPlaybackStatusChange(status);
+        }
+    }
+
+    public void registerCallback(Callback callBack) {
+        if (callBacks == null) {
+            callBacks = new ArrayList<>();
+        }
+        callBacks.add(callBack);
+    }
+
+    public void unregisterCallback(Callback callback) {
+        callBacks.remove(callback);
+    }
+
+    public PlaybackState getPlaybackState() {
+        return playbackState;
     }
 }

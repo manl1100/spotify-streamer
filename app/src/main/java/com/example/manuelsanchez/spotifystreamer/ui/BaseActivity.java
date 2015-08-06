@@ -1,56 +1,47 @@
 package com.example.manuelsanchez.spotifystreamer.ui;
 
 import android.app.Activity;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
-import android.os.IBinder;
+import android.os.Bundle;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
-import com.example.manuelsanchez.spotifystreamer.MusicPlayerService;
+import com.example.manuelsanchez.spotifystreamer.PlaybackController;
 import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
 
 /**
  * Created by Manuel Sanchez on 7/26/15
  */
-public abstract class BaseActivity extends Activity implements MusicPlayerService.Callback {
+public abstract class BaseActivity extends Activity implements PlaybackController.Callback {
 
-    protected MusicPlayerService mMusicPlayerService;
     private ShareActionProvider mShareActionProvider;
     protected Context mContext;
 
     private MenuItem mNowPlayingMenuItem;
     private MenuItem mShareCurrentTrackMenuItem;
 
-    private ServiceConnection mConnection = new ServiceConnection() {
+    private static final String IS_TRACK_PLAYING = "isTrackPlaying";
+    private boolean isTrackPlaying;
 
-        @Override
-        public void onServiceConnected(ComponentName className, IBinder service) {
-            MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
-            mMusicPlayerService = binder.getService();
-            mMusicPlayerService.registerCallback(BaseActivity.this);
-        }
 
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            mMusicPlayerService.unregisterCallback(BaseActivity.this);
+    @Override
+    protected void onCreate(Bundle savedInstanceState) {
+        super.onCreate(savedInstanceState);
+        if (savedInstanceState != null) {
+            isTrackPlaying = savedInstanceState.getBoolean(IS_TRACK_PLAYING);
         }
-    };
+    }
 
     @Override
     protected void onStart() {
         super.onStart();
         mContext = getApplicationContext();
-        Intent intent = new Intent(mContext, MusicPlayerService.class);
-        mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        PlaybackController.getInstance().registerCallback(this);
     }
 
     @Override
@@ -64,6 +55,7 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         MenuItem shareItem = menu.findItem(R.id.menu_item_share);
         shareItem.setActionProvider(mShareActionProvider);
 
+        updateMenuItems();
         return true;
     }
 
@@ -76,8 +68,9 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
             startActivity(intent);
             return true;
         } else if (id == R.id.action_now_playing) {
-            if (mMusicPlayerService.getTracks() != null) {
-                MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(mMusicPlayerService.getTracks(), mMusicPlayerService.getCurrentIndex());
+            PlaybackController playbackController = PlaybackController.getInstance();
+            if (playbackController.getTracks() != null) {
+                MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(playbackController.getTracks(), playbackController.getCurrentIndex());
                 musicPlayerFragment.show(getFragmentManager(), "dialog");
             }
         }
@@ -87,12 +80,14 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
 
     @Override
     public void onPlaybackStatusChange(String status) {
+        PlaybackController playbackController = PlaybackController.getInstance();
         if (status.equals(ACTION_PLAY)) {
-            displayMenuItems();
-            updateShareIntent(mMusicPlayerService.getCurrentlyPlayingTrack());
-        } else if (status.equals(ACTION_IDLE) || status.equals(ACTION_PAUSE)) {
-            hideMenuItems();
+            isTrackPlaying = true;
+            updateShareIntent(playbackController.getCurrentlyPlayingTrack());
+        } else {
+            isTrackPlaying = false;
         }
+        updateMenuItems();
     }
 
     @Override
@@ -100,15 +95,24 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
 
     }
 
+    protected void updateMenuItems() {
+        if (isTrackPlaying) {
+            displayMenuItems();
+        } else {
+            hideMenuItems();
+        }
+    }
+
     protected void displayMenuItems() {
         mNowPlayingMenuItem.setVisible(true);
         mShareCurrentTrackMenuItem.setVisible(true);
-
+        isTrackPlaying = true;
     }
 
     protected void hideMenuItems() {
         mNowPlayingMenuItem.setVisible(false);
         mShareCurrentTrackMenuItem.setVisible(false);
+        isTrackPlaying = true;
     }
 
     private void updateShareIntent(ArtistTopTrackItem currentlyPlayingTrack) {
@@ -120,4 +124,15 @@ public abstract class BaseActivity extends Activity implements MusicPlayerServic
         mShareActionProvider.setShareIntent(sendIntent);
     }
 
+    @Override
+    protected void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        outState.putBoolean(IS_TRACK_PLAYING, isTrackPlaying);
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
+        PlaybackController.getInstance().unregisterCallback(this);
+    }
 }

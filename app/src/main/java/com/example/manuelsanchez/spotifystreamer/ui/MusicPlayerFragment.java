@@ -2,12 +2,9 @@ package com.example.manuelsanchez.spotifystreamer.ui;
 
 import android.app.Dialog;
 import android.app.DialogFragment;
-import android.content.ComponentName;
 import android.content.Context;
 import android.content.Intent;
-import android.content.ServiceConnection;
 import android.os.Bundle;
-import android.os.IBinder;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -20,6 +17,7 @@ import android.widget.TextView;
 import android.widget.ToggleButton;
 
 import com.example.manuelsanchez.spotifystreamer.MusicPlayerService;
+import com.example.manuelsanchez.spotifystreamer.PlaybackController;
 import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 import com.squareup.picasso.Picasso;
@@ -35,7 +33,7 @@ import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 
-public class MusicPlayerFragment extends DialogFragment implements MusicPlayerService.Callback {
+public class MusicPlayerFragment extends DialogFragment implements PlaybackController.Callback {
 
     private static final String LOG_TAG = MusicPlayerFragment.class.getSimpleName();
 
@@ -76,6 +74,8 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
             mTracks = getArguments().getParcelableArrayList(TRACK_ITEMS);
             mCurrentTrackIndex = getArguments().getInt(TRACK_INDEX);
         }
+        PlaybackController playbackController = PlaybackController.getInstance();
+        playbackController.registerCallback(this);
     }
 
     @Override
@@ -119,8 +119,12 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
     public void onStart() {
         super.onStart();
         mContext = getActivity().getApplicationContext();
+        PlaybackController playbackController = PlaybackController.getInstance();
         Intent intent = new Intent(mContext, MusicPlayerService.class);
-        mContext.bindService(intent, mConnection, Context.BIND_AUTO_CREATE);
+        intent.setAction(ACTION_PLAY);
+        intent.putParcelableArrayListExtra(TRACK_ITEMS, mTracks);
+        intent.putExtra(TRACK_INDEX, mCurrentTrackIndex);
+        mContext.startService(intent);
     }
 
     public void updateTrack() {
@@ -175,27 +179,12 @@ public class MusicPlayerFragment extends DialogFragment implements MusicPlayerSe
         }
     };
 
-    private ServiceConnection mConnection = new ServiceConnection() {
-
-        @Override
-        public void onServiceConnected(ComponentName className,
-                                       IBinder service) {
-            MusicPlayerService.MusicPlayerBinder binder = (MusicPlayerService.MusicPlayerBinder) service;
-            musicPlayerService = binder.getService();
-            musicPlayerService.registerCallback(MusicPlayerFragment.this);
-
-            Intent intent = new Intent(mContext, MusicPlayerService.class);
-            intent.setAction(ACTION_PLAY);
-            intent.putParcelableArrayListExtra(TRACK_ITEMS, mTracks);
-            intent.putExtra(TRACK_INDEX, mCurrentTrackIndex);
-            mContext.startService(intent);
-        }
-
-        @Override
-        public void onServiceDisconnected(ComponentName arg0) {
-            musicPlayerService.unregisterCallback(MusicPlayerFragment.this);
-        }
-    };
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        PlaybackController playbackController = PlaybackController.getInstance();
+        playbackController.unregisterCallback(this);
+    }
 
     @Override
     public void onSaveInstanceState(Bundle outState) {

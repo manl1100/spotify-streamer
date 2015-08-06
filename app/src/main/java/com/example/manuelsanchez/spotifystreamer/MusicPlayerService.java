@@ -31,11 +31,9 @@ public class MusicPlayerService extends Service implements PlaybackController.On
     private MediaNotificationManager mediaNotificationManager;
     private PlaybackController playbackController;
 
-    private ArrayList<Callback> callBacks;
-
     public void onCreate() {
         super.onCreate();
-        playbackController = PlaybackController.create(this);
+        playbackController = PlaybackController.getInstance();
         playbackController.setOnCompletionCallback(this);
         mediaNotificationManager = new MediaNotificationManager(this);
     }
@@ -51,12 +49,6 @@ public class MusicPlayerService extends Service implements PlaybackController.On
         return new MusicPlayerBinder();
     }
 
-
-    public interface Callback {
-        void onTrackChanged(int trackIndex);
-
-        void onPlaybackStatusChange(String status);
-    }
 
     @Override
     public int onStartCommand(Intent intent, int flags, int startId) {
@@ -86,48 +78,39 @@ public class MusicPlayerService extends Service implements PlaybackController.On
         ArrayList<ArtistTopTrackItem> tracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
         int trackIndex = intent.getIntExtra(TRACK_INDEX, 0);
 
-        if (tracks == null) {
-            playbackController.resume();
-        } else {
+//        if (tracks == null) {
+//            playbackController.resume();
+//        } else {
             playbackController.play(tracks, trackIndex);
 
-        }
-        fireStatusChangeEvent(ACTION_PLAY);
+//        }
         createNotificationIfNeeded(ACTION_PAUSE);
     }
 
     private void nextTrack() {
         playbackController.next();
         createNotificationIfNeeded(ACTION_PAUSE);
-        fireTrackChangeEvent(getCurrentIndex());
     }
 
     private void previousTrack() {
         playbackController.previous();
         createNotificationIfNeeded(ACTION_PAUSE);
-        fireTrackChangeEvent(getCurrentIndex());
     }
 
     private void pausePlayer() {
         playbackController.pause();
         createNotificationIfNeeded(ACTION_PLAY);
-        fireStatusChangeEvent(ACTION_PAUSE);
     }
 
     private void stopPlayer() {
         stopForeground(true);
         playbackController.stop();
-        fireStatusChangeEvent(ACTION_PAUSE);
     }
 
     @Override
     public void onCompletion(String status) {
         if (status.equals(ACTION_IDLE)) {
             this.stopSelf();
-            fireTrackChangeEvent(getCurrentIndex());
-            fireStatusChangeEvent(ACTION_IDLE);
-        } else if (status.equals(ACTION_PLAY)) {
-            fireTrackChangeEvent(getCurrentIndex());
         }
     }
 
@@ -138,40 +121,5 @@ public class MusicPlayerService extends Service implements PlaybackController.On
             Notification notification = mediaNotificationManager.createMediaNotification(status);
             startForeground(MUSIC_PLAYER_SERVICE, notification);
         }
-    }
-
-    private void fireTrackChangeEvent(int index) {
-        for (Callback callback : callBacks) {
-            callback.onTrackChanged(index);
-        }
-    }
-
-    private void fireStatusChangeEvent(String status) {
-        for (Callback callback : callBacks) {
-            callback.onPlaybackStatusChange(status);
-        }
-    }
-
-    public void registerCallback(Callback callBack) {
-        if (callBacks == null) {
-            callBacks = new ArrayList<>();
-        }
-        callBacks.add(callBack);
-    }
-
-    public void unregisterCallback(Callback callback) {
-        callBacks.remove(callback);
-    }
-
-    public ArrayList<ArtistTopTrackItem> getTracks() {
-        return playbackController.getTracks();
-    }
-
-    public int getCurrentIndex() {
-        return playbackController.getCurrentIndex();
-    }
-
-    public ArtistTopTrackItem getCurrentlyPlayingTrack() {
-        return playbackController.getCurrentlyPlayingTrack();
     }
 }
