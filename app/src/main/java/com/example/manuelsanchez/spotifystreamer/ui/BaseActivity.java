@@ -12,7 +12,11 @@ import com.example.manuelsanchez.spotifystreamer.PlaybackController;
 import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 
+import java.util.ArrayList;
+
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 /**
  * Created by Manuel Sanchez on 7/26/15
@@ -27,6 +31,8 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
 
     private static final String IS_TRACK_PLAYING = "isTrackPlaying";
     private boolean isTrackPlaying;
+
+    protected boolean mIsTwoPane;
 
 
     @Override
@@ -69,10 +75,7 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
             return true;
         } else if (id == R.id.action_now_playing) {
             PlaybackController playbackController = PlaybackController.getInstance();
-            if (playbackController.getTracks() != null) {
-                MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(playbackController.getTracks(), playbackController.getCurrentIndex());
-                musicPlayerFragment.show(getFragmentManager(), "dialog");
-            }
+            displayMusicPlayer(playbackController.getTracks(), playbackController.getCurrentIndex());
         }
 
         return super.onOptionsItemSelected(item);
@@ -95,6 +98,18 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
 
     }
 
+    protected void displayMusicPlayer(ArrayList<ArtistTopTrackItem> artistTracks, int trackIndex) {
+        if (mIsTwoPane) {
+            MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(artistTracks, trackIndex);
+            musicPlayerFragment.show(getFragmentManager(), "dialog");
+        } else {
+            Intent intent = new Intent(this, MusicPlayerActivity.class);
+            intent.putParcelableArrayListExtra(TRACK_ITEMS, artistTracks);
+            intent.putExtra(TRACK_INDEX, trackIndex);
+            startActivity(intent);
+        }
+    }
+
     protected void updateMenuItems() {
         if (isTrackPlaying) {
             displayMenuItems();
@@ -112,7 +127,7 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
     protected void hideMenuItems() {
         mNowPlayingMenuItem.setVisible(false);
         mShareCurrentTrackMenuItem.setVisible(false);
-        isTrackPlaying = true;
+        isTrackPlaying = false;
     }
 
     private void updateShareIntent(ArtistTopTrackItem currentlyPlayingTrack) {

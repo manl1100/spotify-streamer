@@ -118,6 +118,9 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
     @Override
     public void onStart() {
         super.onStart();
+        /**
+         * TODO: Take care of case when player is paused then device is rotated
+         * */
         mContext = getActivity().getApplicationContext();
         PlaybackController playbackController = PlaybackController.getInstance();
         Intent intent = new Intent(mContext, MusicPlayerService.class);

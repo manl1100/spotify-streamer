@@ -18,7 +18,6 @@ public class ArtistSearchActivity extends BaseActivity
 
     private ArtistSearchFragment mSearchActivity;
     private ArtistTopTracksFragment mTopTrackActivity;
-    private boolean mIsTwoPane;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -42,15 +41,10 @@ public class ArtistSearchActivity extends BaseActivity
             intent.putExtra(SELECTED_ARTIST_ID, artistId);
             startActivity(intent);
         }
-
     }
 
     @Override
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> tracks, int trackIndex) {
-        FragmentManager fragmentManager = getFragmentManager();
-        MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(tracks, trackIndex);
-        musicPlayerFragment.show(fragmentManager, "dialog");
+        displayMusicPlayer(tracks, trackIndex);
     }
-
-
 }

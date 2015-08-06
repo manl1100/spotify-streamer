@@ -19,4 +19,6 @@
     <string name="artist_thumbnail">artist_thumbnail</string>
     <string name="artist_top_ten_thumbnail">track_thumbnail</string>
 
+    <string name="hello_world">Hello world!</string>
+
 </resources>
