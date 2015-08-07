@@ -5,6 +5,7 @@ import android.app.DialogFragment;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
+import android.os.Handler;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -18,8 +19,10 @@ import android.widget.ToggleButton;
 
 import com.example.manuelsanchez.spotifystreamer.MusicPlayerService;
 import com.example.manuelsanchez.spotifystreamer.PlaybackController;
+import com.example.manuelsanchez.spotifystreamer.PlaybackState;
 import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
+import com.example.manuelsanchez.spotifystreamer.util.TimeStringHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
@@ -40,7 +43,6 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
     private ArrayList<ArtistTopTrackItem> mTracks;
     private int mCurrentTrackIndex;
     private Context mContext;
-    private MusicPlayerService musicPlayerService;
     private TextView artistTextView;
     private TextView albumTextView;
     private TextView elapsed;
@@ -51,6 +53,8 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
     private Button previous;
     private ToggleButton playPause;
     private Button next;
+
+    private Handler handler = new Handler();
 
     public MusicPlayerFragment() {
     }
@@ -95,12 +99,11 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         trackTextView = (TextView) musicPlayerView.findViewById(R.id.artist_track);
 
         elapsed = (TextView) musicPlayerView.findViewById(R.id.time_elapse);
-        elapsed.setText("0:00");
 
         remaining = (TextView) musicPlayerView.findViewById(R.id.time_remaining);
-        remaining.setText("0:30");
 
         mSeekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
+//        mSeekBar.setOnSeekBarChangeListener(seekBarChangeListener);
 
         previous = (Button) musicPlayerView.findViewById(R.id.rewind);
         previous.setOnClickListener(onPreviousTrackClickListener);
@@ -112,6 +115,7 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         next.setOnClickListener(onNextTrackClickListener);
 
         updateTrack();
+        startTrackElapseTime();
         return musicPlayerView;
     }
 
@@ -128,6 +132,24 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         intent.putParcelableArrayListExtra(TRACK_ITEMS, mTracks);
         intent.putExtra(TRACK_INDEX, mCurrentTrackIndex);
         mContext.startService(intent);
+    }
+
+    private void startTrackElapseTime() {
+        this.getActivity().runOnUiThread(new Runnable() {
+            @Override
+            public void run() {
+                PlaybackController playbackController = PlaybackController.getInstance();
+                if (playbackController.getPlaybackState().equals(PlaybackState.PLAY)) {
+                    int currentPosition = playbackController.getCurrentPosition() / 1000;
+                    int remainingTime = (playbackController.getDuration() / 1000) - currentPosition;
+                    mSeekBar.setProgress(currentPosition);
+                    elapsed.setText(TimeStringHelper.getFormatedString(currentPosition));
+                    remaining.setText(TimeStringHelper.getFormatedString(remainingTime));
+                    mSeekBar.setMax(playbackController.getDuration() / 1000);
+                }
+                handler.postDelayed(this, 1000);
+            }
+        });
     }
 
     public void updateTrack() {
@@ -181,6 +203,26 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
             updateTrack();
         }
     };
+
+//    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+//
+//        @Override
+//        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+//            if (fromUser) {
+//                PlaybackController.getInstance().seekTo(progress);
+//            }
+//        }
+//
+//        @Override
+//        public void onStartTrackingTouch(SeekBar seekBar) {
+//
+//        }
+//
+//        @Override
+//        public void onStopTrackingTouch(SeekBar seekBar) {
+//
+//        }
+//    };
 
     @Override
     public void onDestroy() {

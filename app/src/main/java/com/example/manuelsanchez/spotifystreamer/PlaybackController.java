@@ -123,6 +123,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     private void initializeMediaPlayer() {
+        playbackState = PlaybackState.BUFFERING;
         if (mMediaPlayer != null) {
             mMediaPlayer.reset();
         } else {
@@ -201,6 +202,18 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 
     public String getCurrentlyPlayingImageUrl() {
         return tracks.get(currentIndex).getImageUrl();
+    }
+
+    public int getCurrentPosition() {
+        return mMediaPlayer.getCurrentPosition();
+    }
+
+    public int getDuration() {
+        return mMediaPlayer.getDuration();
+    }
+
+    public void seekTo(int seconds) {
+        mMediaPlayer.seekTo(seconds);
     }
 
     private void fireTrackChangeEvent(int index) {

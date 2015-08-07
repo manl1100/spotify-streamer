@@ -8,6 +8,7 @@ public enum PlaybackState {
     PLAY,
     PAUSED,
     STOPPED,
-    IDLE
+    IDLE,
+    BUFFERING
 
 }
