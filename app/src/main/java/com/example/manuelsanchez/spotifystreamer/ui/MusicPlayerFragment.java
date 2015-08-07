@@ -26,6 +26,10 @@ import com.example.manuelsanchez.spotifystreamer.util.TimeStringHelper;
 import com.squareup.picasso.Picasso;
 
 import java.util.ArrayList;
+import java.util.concurrent.Executors;
+import java.util.concurrent.ScheduledExecutorService;
+import java.util.concurrent.ScheduledFuture;
+import java.util.concurrent.TimeUnit;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_NEXT;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
@@ -55,6 +59,8 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
     private Button next;
 
     private Handler handler = new Handler();
+    private final ScheduledExecutorService scheduledExecutor = Executors.newSingleThreadScheduledExecutor();
+    private ScheduledFuture seekBarScheduledFuture;
 
     public MusicPlayerFragment() {
     }
@@ -103,7 +109,7 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         remaining = (TextView) musicPlayerView.findViewById(R.id.time_remaining);
 
         mSeekBar = (SeekBar) musicPlayerView.findViewById(R.id.track_duration_bar);
-//        mSeekBar.setOnSeekBarChangeListener(seekBarChangeListener);
+        mSeekBar.setOnSeekBarChangeListener(seekBarChangeListener);
 
         previous = (Button) musicPlayerView.findViewById(R.id.rewind);
         previous.setOnClickListener(onPreviousTrackClickListener);
@@ -115,7 +121,7 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         next.setOnClickListener(onNextTrackClickListener);
 
         updateTrack();
-        startTrackElapseTime();
+        startSeekBarUpdateTask();
         return musicPlayerView;
     }
 
@@ -134,8 +140,8 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         mContext.startService(intent);
     }
 
-    private void startTrackElapseTime() {
-        this.getActivity().runOnUiThread(new Runnable() {
+    private void startSeekBarUpdateTask() {
+        Runnable seekBarRunnable = new Runnable() {
             @Override
             public void run() {
                 PlaybackController playbackController = PlaybackController.getInstance();
@@ -147,9 +153,16 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
                     remaining.setText(TimeStringHelper.getFormatedString(remainingTime));
                     mSeekBar.setMax(playbackController.getDuration() / 1000);
                 }
-                handler.postDelayed(this, 1000);
+                handler.post(this);
             }
-        });
+        };
+        seekBarScheduledFuture = scheduledExecutor.scheduleAtFixedRate(seekBarRunnable, 50, 1000, TimeUnit.MILLISECONDS);
+    }
+
+    private void stopSeekBarUpdateTask() {
+        if (seekBarScheduledFuture != null) {
+            seekBarScheduledFuture.cancel(false);
+        }
     }
 
     public void updateTrack() {
@@ -204,31 +217,33 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         }
     };
 
-//    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
-//
-//        @Override
-//        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
-//            if (fromUser) {
-//                PlaybackController.getInstance().seekTo(progress);
-//            }
-//        }
-//
-//        @Override
-//        public void onStartTrackingTouch(SeekBar seekBar) {
-//
-//        }
-//
-//        @Override
-//        public void onStopTrackingTouch(SeekBar seekBar) {
-//
-//        }
-//    };
+    private SeekBar.OnSeekBarChangeListener seekBarChangeListener = new SeekBar.OnSeekBarChangeListener() {
+
+        @Override
+        public void onProgressChanged(SeekBar seekBar, int progress, boolean fromUser) {
+            if (fromUser) {
+                elapsed.setText(TimeStringHelper.getFormatedString(progress));
+            }
+        }
+
+        @Override
+        public void onStartTrackingTouch(SeekBar seekBar) {
+            stopSeekBarUpdateTask();
+        }
+
+        @Override
+        public void onStopTrackingTouch(SeekBar seekBar) {
+            PlaybackController.getInstance().seekTo(seekBar.getProgress() * 1000);
+            startSeekBarUpdateTask();
+        }
+    };
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         PlaybackController playbackController = PlaybackController.getInstance();
         playbackController.unregisterCallback(this);
+        stopSeekBarUpdateTask();
     }
 
     @Override
