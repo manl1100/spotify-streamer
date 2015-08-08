@@ -141,6 +141,7 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
     }
 
     private void startSeekBarUpdateTask() {
+        stopSeekBarUpdateTask();
         Runnable seekBarRunnable = new Runnable() {
             @Override
             public void run() {

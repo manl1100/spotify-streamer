@@ -32,6 +32,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     private ArrayList<Callback> callBacks;
 
     private PlaybackState playbackState = PlaybackState.IDLE;
+    private boolean isBuffering;
 
     public interface Callback {
         void onTrackChanged(int trackIndex);
@@ -60,28 +61,28 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
             initializeMediaPlayer();
         } else if (playbackState.equals(PlaybackState.PAUSED)) {
             mMediaPlayer.start();
+            fireStatusChangeEvent(ACTION_PLAY);
         }
-        fireStatusChangeEvent(ACTION_PLAY);
-
+        playbackState = PlaybackState.PLAY;
     }
 
     public void next() {
         currentIndex = currentIndex == tracks.size() - 1 ? currentIndex : ++currentIndex;
         initializeMediaPlayer();
         fireTrackChangeEvent(getCurrentIndex());
-
     }
 
     public void previous() {
         currentIndex = currentIndex == 0 ? currentIndex : --currentIndex;
         initializeMediaPlayer();
         fireTrackChangeEvent(getCurrentIndex());
-
     }
 
     public void pause() {
         playbackState = PlaybackState.PAUSED;
-        mMediaPlayer.pause();
+        if (!isBuffering) {
+            mMediaPlayer.pause();
+        }
         fireStatusChangeEvent(ACTION_PAUSE);
 
     }
@@ -91,6 +92,12 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
         mMediaPlayer.reset();
         fireStatusChangeEvent(ACTION_PAUSE);
 
+    }
+
+    public void resume() {
+        playbackState = PlaybackState.PLAY;
+        mMediaPlayer.start();
+        fireStatusChangeEvent(ACTION_PLAY);
     }
 
 //    @Override
@@ -123,7 +130,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     private void initializeMediaPlayer() {
-        playbackState = PlaybackState.BUFFERING;
+        isBuffering = true;
         if (mMediaPlayer != null) {
             mMediaPlayer.reset();
         } else {
@@ -176,8 +183,13 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 
     @Override
     public void onPrepared(MediaPlayer mediaPlayer) {
-        playbackState = PlaybackState.PLAY;
-        mMediaPlayer.start();
+        isBuffering = false;
+        if (playbackState.equals(PlaybackState.PLAY)) {
+            mMediaPlayer.start();
+        } else if (playbackState.equals(PlaybackState.PAUSED)) {
+            mediaPlayer.start();
+            mediaPlayer.pause();
+        }
     }
 
     public ArrayList<ArtistTopTrackItem> getTracks() {
@@ -190,6 +202,10 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 
     public ArtistTopTrackItem getCurrentlyPlayingTrack() {
         return tracks != null ? tracks.get(currentIndex) : null;
+    }
+
+    public PlaybackState getPlaybackState() {
+        return playbackState;
     }
 
     public String getCurrentlyPlayingTrackName() {
@@ -209,7 +225,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     public int getDuration() {
-        return mMediaPlayer.getDuration();
+        return mMediaPlayer.isPlaying() ? mMediaPlayer.getDuration() : 0;
     }
 
     public void seekTo(int seconds) {
@@ -239,7 +255,4 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
         callBacks.remove(callback);
     }
 
-    public PlaybackState getPlaybackState() {
-        return playbackState;
-    }
 }

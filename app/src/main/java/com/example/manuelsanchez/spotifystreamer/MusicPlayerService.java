@@ -14,6 +14,7 @@ import com.example.manuelsanchez.spotifystreamer.ui.SettingsFragment;
 import java.util.ArrayList;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_CLOSE;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_RESUME;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_NEXT;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
@@ -68,6 +69,9 @@ public class MusicPlayerService extends Service implements PlaybackController.On
             case ACTION_CLOSE:
                 stopPlayer();
                 break;
+            case ACTION_RESUME:
+                resumePlayer();
+                break;
             default:
                 stopPlayer();
         }
@@ -77,24 +81,30 @@ public class MusicPlayerService extends Service implements PlaybackController.On
     private void play(Intent intent) {
         ArrayList<ArtistTopTrackItem> tracks = intent.getParcelableArrayListExtra(TRACK_ITEMS);
         int trackIndex = intent.getIntExtra(TRACK_INDEX, 0);
-
-//        if (tracks == null) {
-//            playbackController.resume();
-//        } else {
-            playbackController.play(tracks, trackIndex);
-
-//        }
+        playbackController.play(tracks, trackIndex);
         createNotificationIfNeeded(ACTION_PAUSE);
     }
 
     private void nextTrack() {
         playbackController.next();
-        createNotificationIfNeeded(ACTION_PAUSE);
+        if (playbackController.getPlaybackState().equals(PlaybackState.PLAY)) {
+            createNotificationIfNeeded(ACTION_PAUSE);
+
+        } else {
+            createNotificationIfNeeded(ACTION_PLAY);
+
+        }
     }
 
     private void previousTrack() {
         playbackController.previous();
-        createNotificationIfNeeded(ACTION_PAUSE);
+        if (playbackController.getPlaybackState().equals(PlaybackState.PLAY)) {
+            createNotificationIfNeeded(ACTION_PAUSE);
+
+        } else {
+            createNotificationIfNeeded(ACTION_PLAY);
+
+        }
     }
 
     private void pausePlayer() {
@@ -105,6 +115,11 @@ public class MusicPlayerService extends Service implements PlaybackController.On
     private void stopPlayer() {
         stopForeground(true);
         playbackController.stop();
+    }
+
+    private void resumePlayer() {
+        playbackController.resume();
+        createNotificationIfNeeded(ACTION_PAUSE);
     }
 
     @Override

@@ -20,6 +20,7 @@ import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PREV;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_RESUME;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.MUSIC_PLAYER_SERVICE;
 
 
@@ -52,7 +53,7 @@ public class MediaNotificationManager {
         mPendingPreviousIntent = PendingIntent.getService(mContext, 0, previousIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent playIntent = new Intent(mContext, MusicPlayerService.class);
-        playIntent.setAction(ACTION_PLAY);
+        playIntent.setAction(ACTION_RESUME);
         mPendingPlayIntent = PendingIntent.getService(mContext, 0, playIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
         Intent nextIntent = new Intent(mContext, MusicPlayerService.class);
