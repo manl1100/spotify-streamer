@@ -138,7 +138,7 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
             @Override
             public void run() {
                 PlaybackController playbackController = PlaybackController.getInstance();
-                if (playbackController.getPlaybackState().equals(PlaybackState.PLAY)) {
+                if (playbackController.isPlaying()) {
                     int currentPosition = playbackController.getCurrentPosition() / 1000;
                     int remainingTime = (playbackController.getDuration() / 1000) - currentPosition;
                     mSeekBar.setProgress(currentPosition);

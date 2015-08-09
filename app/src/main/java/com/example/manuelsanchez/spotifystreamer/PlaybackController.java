@@ -6,6 +6,7 @@ import android.media.MediaPlayer;
 import android.net.wifi.WifiManager;
 import android.os.PowerManager;
 import android.util.Log;
+import android.widget.Toast;
 
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 
@@ -143,8 +144,13 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 
     @Override
     public boolean onError(MediaPlayer mediaPlayer, int what, int extra) {
+        if (what == MediaPlayer.MEDIA_ERROR_TIMED_OUT || what == MediaPlayer.MEDIA_ERROR_UNKNOWN) {
+            Toast.makeText(mContext, "Check your internet connection", Toast.LENGTH_LONG).show();
+        } else {
+            Toast.makeText(mContext, "Error has occurred", Toast.LENGTH_LONG).show();
+        }
         mediaPlayer.reset();
-        return false;
+        return true;
     }
 
     @Override
@@ -199,7 +205,9 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     public void seekTo(int seconds) {
-        mMediaPlayer.seekTo(seconds);
+        if (mMediaPlayer.isPlaying() || mMediaPlayer.isLooping() || playbackState.equals(PlaybackState.PAUSED)) {
+            mMediaPlayer.seekTo(seconds);
+        }
     }
 
     private void fireTrackChangeEvent(int index) {
