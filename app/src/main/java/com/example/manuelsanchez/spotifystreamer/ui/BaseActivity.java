@@ -8,6 +8,7 @@ import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.ShareActionProvider;
 
+import com.example.manuelsanchez.spotifystreamer.MusicPlayerService;
 import com.example.manuelsanchez.spotifystreamer.PlaybackController;
 import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
@@ -76,7 +77,7 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
             startActivity(intent);
             return true;
         } else if (id == R.id.action_now_playing) {
-            displayMusicPlayer(mPlaybackController.getTracks(), mPlaybackController.getCurrentIndex());
+            launchMusicPlayer(mPlaybackController.getTracks(), mPlaybackController.getCurrentIndex());
         }
 
         return super.onOptionsItemSelected(item);
@@ -98,16 +99,25 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
 
     }
 
-    protected void displayMusicPlayer(ArrayList<ArtistTopTrackItem> artistTracks, int trackIndex) {
+    protected void launchMusicPlayer(ArrayList<ArtistTopTrackItem> artistTracks, int trackIndex) {
+        startMusicService(artistTracks, trackIndex);
         if (mIsTwoPane) {
             MusicPlayerFragment musicPlayerFragment = MusicPlayerFragment.newInstance(artistTracks, trackIndex);
             musicPlayerFragment.show(getFragmentManager(), "dialog");
         } else {
-            Intent intent = new Intent(this, MusicPlayerActivity.class);
-            intent.putParcelableArrayListExtra(TRACK_ITEMS, artistTracks);
-            intent.putExtra(TRACK_INDEX, trackIndex);
-            startActivity(intent);
+            Intent musicPlayerActivityIntent = new Intent(this, MusicPlayerActivity.class);
+            musicPlayerActivityIntent.putParcelableArrayListExtra(TRACK_ITEMS, artistTracks);
+            musicPlayerActivityIntent.putExtra(TRACK_INDEX, trackIndex);
+            startActivity(musicPlayerActivityIntent);
         }
+    }
+
+    private void startMusicService(ArrayList<ArtistTopTrackItem> artistTracks, int trackIndex) {
+        Intent intent = new Intent(this, MusicPlayerService.class);
+        intent.setAction(ACTION_PLAY);
+        intent.putParcelableArrayListExtra(TRACK_ITEMS, artistTracks);
+        intent.putExtra(TRACK_INDEX, trackIndex);
+        startService(intent);
     }
 
     protected void updateMenuItems() {

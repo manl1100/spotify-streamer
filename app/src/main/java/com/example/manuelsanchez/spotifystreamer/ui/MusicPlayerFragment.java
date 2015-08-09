@@ -1,5 +1,6 @@
 package com.example.manuelsanchez.spotifystreamer.ui;
 
+import android.app.Activity;
 import android.app.Dialog;
 import android.app.DialogFragment;
 import android.content.Context;
@@ -75,6 +76,12 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
     }
 
     @Override
+    public void onAttach(Activity activity) {
+        super.onAttach(activity);
+        mContext = activity;
+    }
+
+    @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         if (savedInstanceState != null) {
@@ -123,21 +130,6 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
         updateTrack();
         startSeekBarUpdateTask();
         return musicPlayerView;
-    }
-
-    @Override
-    public void onStart() {
-        super.onStart();
-        /**
-         * TODO: Take care of case when player is paused then device is rotated
-         * */
-        mContext = getActivity().getApplicationContext();
-        PlaybackController playbackController = PlaybackController.getInstance();
-        Intent intent = new Intent(mContext, MusicPlayerService.class);
-        intent.setAction(ACTION_PLAY);
-        intent.putParcelableArrayListExtra(TRACK_ITEMS, mTracks);
-        intent.putExtra(TRACK_INDEX, mCurrentTrackIndex);
-        mContext.startService(intent);
     }
 
     private void startSeekBarUpdateTask() {

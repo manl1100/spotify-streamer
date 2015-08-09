@@ -1,6 +1,5 @@
 package com.example.manuelsanchez.spotifystreamer.ui;
 
-import android.app.FragmentManager;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
@@ -45,6 +44,6 @@ public class ArtistSearchActivity extends BaseActivity
 
     @Override
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> tracks, int trackIndex) {
-        displayMusicPlayer(tracks, trackIndex);
+        launchMusicPlayer(tracks, trackIndex);
     }
 }

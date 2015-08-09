@@ -17,6 +17,6 @@ public class ArtistTopTracksActivity extends BaseActivity implements ArtistTopTr
 
     @Override
     public void onTrackSelected(ArrayList<ArtistTopTrackItem> artistTracks, int trackIndex) {
-        displayMusicPlayer(artistTracks, trackIndex);
+        launchMusicPlayer(artistTracks, trackIndex);
     }
 }
