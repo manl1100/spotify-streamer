@@ -3,6 +3,8 @@ package com.example.manuelsanchez.spotifystreamer;
 import android.content.Context;
 import android.media.AudioManager;
 import android.media.MediaPlayer;
+import android.net.wifi.WifiManager;
+import android.os.PowerManager;
 import android.util.Log;
 
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
@@ -27,7 +29,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     private ArrayList<ArtistTopTrackItem> tracks;
     private int currentIndex;
 
-
+    private Context mContext;
     private ArrayList<Callback> callBacks;
 
     private PlaybackState playbackState = PlaybackState.IDLE;
@@ -136,10 +138,10 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
             mMediaPlayer.setOnPreparedListener(this);
             mMediaPlayer.setOnErrorListener(this);
             mMediaPlayer.setOnCompletionListener(this);
-//            mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
-//            WifiManager.WifiLock wifiLock = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE))
-//                    .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
-//            wifiLock.acquire();
+            mMediaPlayer.setWakeMode(mContext, PowerManager.PARTIAL_WAKE_LOCK);
+            WifiManager.WifiLock wifiLock = ((WifiManager) mContext.getSystemService(Context.WIFI_SERVICE))
+                    .createWifiLock(WifiManager.WIFI_MODE_FULL, "mylock");
+            wifiLock.acquire();
             mMediaPlayer.prepareAsync();
         } catch (Exception e) {
             Log.e(LOG_TAG, "Media Player error: " + e.getMessage());
@@ -246,6 +248,10 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
             callBacks = new ArrayList<>();
         }
         callBacks.add(callBack);
+    }
+
+    public void setContext(Context mContext) {
+        this.mContext = mContext;
     }
 
     public void unregisterCallback(Callback callback) {

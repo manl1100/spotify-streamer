@@ -41,6 +41,7 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         mPlaybackController = PlaybackController.getInstance();
+        mPlaybackController.setContext(getApplicationContext());
         if (savedInstanceState != null) {
             isTrackPlaying = savedInstanceState.getBoolean(IS_TRACK_PLAYING);
         }
