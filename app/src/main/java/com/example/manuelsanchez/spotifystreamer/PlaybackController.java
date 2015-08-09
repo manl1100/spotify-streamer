@@ -61,8 +61,8 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
             initializeMediaPlayer();
         } else if (playbackState.equals(PlaybackState.PAUSED)) {
             mMediaPlayer.start();
-            fireStatusChangeEvent(ACTION_PLAY);
         }
+        fireStatusChangeEvent(ACTION_PLAY);
         playbackState = PlaybackState.PLAY;
     }
 
@@ -95,8 +95,10 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     public void resume() {
+        if (!isBuffering) {
+            mMediaPlayer.start();
+        }
         playbackState = PlaybackState.PLAY;
-        mMediaPlayer.start();
         fireStatusChangeEvent(ACTION_PLAY);
     }
 
