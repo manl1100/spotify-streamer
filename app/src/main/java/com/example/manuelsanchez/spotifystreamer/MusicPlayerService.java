@@ -14,12 +14,11 @@ import com.example.manuelsanchez.spotifystreamer.ui.SettingsFragment;
 import java.util.ArrayList;
 
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_CLOSE;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_RESUME;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_NEXT;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PREV;
+import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_RESUME;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.MUSIC_PLAYER_SERVICE;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_INDEX;
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
@@ -128,8 +127,8 @@ public class MusicPlayerService extends Service implements PlaybackController.Ca
     }
 
     @Override
-    public void onPlaybackStatusChange(String status) {
-        if (status.equals(ACTION_IDLE)) {
+    public void onPlaybackStatusChange(PlaybackState status) {
+        if (status.equals(PlaybackState.IDLE)) {
             this.stopSelf();
         }
     }

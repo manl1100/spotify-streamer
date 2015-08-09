@@ -11,10 +11,6 @@ import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 
 import java.util.ArrayList;
 
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_IDLE;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PAUSE;
-import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.ACTION_PLAY;
-
 /**
  * Created by Manuel Sanchez on 8/2/15
  */
@@ -38,7 +34,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     public interface Callback {
         void onTrackChanged(int trackIndex);
 
-        void onPlaybackStatusChange(String status);
+        void onPlaybackStatusChange(PlaybackState state);
     }
 
     private PlaybackController() {
@@ -59,7 +55,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
         } else if (playbackState.equals(PlaybackState.PAUSED)) {
             mMediaPlayer.start();
         }
-        fireStatusChangeEvent(ACTION_PLAY);
+        fireStatusChangeEvent(PlaybackState.PLAY);
         playbackState = PlaybackState.PLAY;
     }
 
@@ -80,14 +76,14 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
         if (!isBuffering) {
             mMediaPlayer.pause();
         }
-        fireStatusChangeEvent(ACTION_PAUSE);
+        fireStatusChangeEvent(PlaybackState.PAUSED);
 
     }
 
     public void stop() {
         playbackState = PlaybackState.IDLE;
         mMediaPlayer.reset();
-        fireStatusChangeEvent(ACTION_PAUSE);
+        fireStatusChangeEvent(PlaybackState.PAUSED);
 
     }
 
@@ -96,33 +92,8 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
             mMediaPlayer.start();
         }
         playbackState = PlaybackState.PLAY;
-        fireStatusChangeEvent(ACTION_PLAY);
+        fireStatusChangeEvent(PlaybackState.PLAY);
     }
-
-//    @Override
-//    public void onAudioFocusChange(int focusChange) {
-//        switch (focusChange) {
-//            case AudioManager.AUDIOFOCUS_GAIN:
-//                if (mMediaPlayer == null) initializeMediaPlayer();
-//                else if (!mMediaPlayer.isPlaying()) mMediaPlayer.start();
-//                mMediaPlayer.setVolume(1.0f, 1.0f);
-//                break;
-//
-//            case AudioManager.AUDIOFOCUS_LOSS:
-//                if (mMediaPlayer.isPlaying()) mMediaPlayer.stop();
-//                mMediaPlayer.release();
-//                mMediaPlayer = null;
-//                break;
-//
-//            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT:
-//                if (mMediaPlayer.isPlaying()) mMediaPlayer.pause();
-//                break;
-//
-//            case AudioManager.AUDIOFOCUS_LOSS_TRANSIENT_CAN_DUCK:
-//                if (mMediaPlayer.isPlaying()) mMediaPlayer.setVolume(0.1f, 0.1f);
-//                break;
-//        }
-//    }
 
     private void initializeMediaPlayer() {
         isBuffering = true;
@@ -160,12 +131,12 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     public void onCompletion(MediaPlayer mediaPlayer) {
         if (currentIndex == tracks.size() - 1) {
             fireTrackChangeEvent(getCurrentIndex());
-            fireStatusChangeEvent(ACTION_IDLE);
+            fireStatusChangeEvent(PlaybackState.IDLE);
             playbackState = PlaybackState.IDLE;
         } else {
             ++currentIndex;
             initializeMediaPlayer();
-            fireStatusChangeEvent(ACTION_PLAY);
+            fireStatusChangeEvent(PlaybackState.PLAY);
             fireTrackChangeEvent(getCurrentIndex());
         }
     }
@@ -237,7 +208,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
         }
     }
 
-    private void fireStatusChangeEvent(String status) {
+    private void fireStatusChangeEvent(PlaybackState status) {
         for (Callback callback : callBacks) {
             callback.onPlaybackStatusChange(status);
         }

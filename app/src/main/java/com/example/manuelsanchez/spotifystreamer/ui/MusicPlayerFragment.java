@@ -247,9 +247,9 @@ public class MusicPlayerFragment extends DialogFragment implements PlaybackContr
     }
 
     @Override
-    public void onPlaybackStatusChange(String status) {
+    public void onPlaybackStatusChange(PlaybackState status) {
         Log.d(LOG_TAG, "onPlaybackStatusChange");
-        playPause.setChecked(status.equals(ACTION_PLAY));
+        playPause.setChecked(status.equals(PlaybackState.PLAY));
     }
 
     @Override

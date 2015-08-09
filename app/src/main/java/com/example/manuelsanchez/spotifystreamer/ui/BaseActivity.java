@@ -10,6 +10,7 @@ import android.widget.ShareActionProvider;
 
 import com.example.manuelsanchez.spotifystreamer.MusicPlayerService;
 import com.example.manuelsanchez.spotifystreamer.PlaybackController;
+import com.example.manuelsanchez.spotifystreamer.PlaybackState;
 import com.example.manuelsanchez.spotifystreamer.R;
 import com.example.manuelsanchez.spotifystreamer.model.ArtistTopTrackItem;
 
@@ -85,8 +86,8 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
     }
 
     @Override
-    public void onPlaybackStatusChange(String status) {
-        if (status.equals(ACTION_PLAY)) {
+    public void onPlaybackStatusChange(PlaybackState status) {
+        if (status.equals(PlaybackState.PLAY)) {
             isTrackPlaying = true;
             updateShareIntent(mPlaybackController.getCurrentlyPlayingTrack());
         } else {
