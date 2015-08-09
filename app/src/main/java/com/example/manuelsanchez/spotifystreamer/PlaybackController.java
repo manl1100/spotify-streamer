@@ -55,7 +55,7 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     }
 
     public void play(ArrayList<ArtistTopTrackItem> topTrackItems, int trackIndex) {
-        if (tracks == null || !isTrackCurrentlyPlaying(tracks, trackIndex) || playbackState.equals(PlaybackState.IDLE)) {
+        if (tracks == null || !isTrackCurrentlyPlaying(topTrackItems, trackIndex) || playbackState.equals(PlaybackState.IDLE)) {
             tracks = topTrackItems;
             currentIndex = trackIndex;
             initializeMediaPlayer();
