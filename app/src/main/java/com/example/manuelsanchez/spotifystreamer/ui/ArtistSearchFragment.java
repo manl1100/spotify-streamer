@@ -24,7 +24,7 @@ import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants
 
 public class ArtistSearchFragment extends Fragment {
 
-    private ArtistSearchListAdapter mArtistListAdapter = null;
+    private ArtistSearchListAdapter mArtistListAdapter;
     private OnArtistSelectedListener mOnArtistSelectedListener;
 
 

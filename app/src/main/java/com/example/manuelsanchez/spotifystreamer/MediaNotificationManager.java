@@ -31,6 +31,7 @@ public class MediaNotificationManager {
 
     private static final String LOG_TAG = MediaNotificationManager.class.getSimpleName();
 
+    private PlaybackController mPlaybackController;
     NotificationManager mNotificationManager;
     private PendingIntent mPendingActivityIntent;
     private PendingIntent mPendingPauseIntent;
@@ -43,6 +44,7 @@ public class MediaNotificationManager {
 
     public MediaNotificationManager(Context context) {
         mContext = context;
+        mPlaybackController = PlaybackController.getInstance();
 
         Intent notificationIntent = new Intent(mContext, ArtistSearchActivity.class);
         notificationIntent.setFlags(Intent.FLAG_ACTIVITY_CLEAR_TOP | Intent.FLAG_ACTIVITY_SINGLE_TOP);
@@ -77,12 +79,12 @@ public class MediaNotificationManager {
         int resource = status.equals(ACTION_PLAY) ? R.drawable.ic_play_arrow_black_18dp : R.drawable.ic_pause_black_18dp;
         Notification notification = new Notification.Builder(mContext)
                 .setStyle(new Notification.MediaStyle())
-                .setContentTitle(PlaybackController.getInstance().getCurrentlyPlayingTrackName())
+                .setContentTitle(mPlaybackController.getCurrentlyPlayingTrackName())
                 .setTicker("Spotify Streamer")
                 .setVisibility(Notification.VISIBILITY_PUBLIC)
-                .setContentText(PlaybackController.getInstance().getCurrentlyPlayingArtist())
+                .setContentText(mPlaybackController.getCurrentlyPlayingArtist())
                 .setSmallIcon(R.drawable.ic_play_arrow_black_48dp)
-                .setLargeIcon(loadBitMap(PlaybackController.getInstance().getCurrentlyPlayingImageUrl()))
+                .setLargeIcon(loadBitMap(mPlaybackController.getCurrentlyPlayingImageUrl()))
                 .setContentIntent(mPendingActivityIntent)
                 .setOngoing(true)
                 .addAction(R.drawable.ic_skip_previous_black_18dp, "", mPendingPreviousIntent)

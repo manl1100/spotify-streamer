@@ -23,6 +23,7 @@ import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants
  */
 public abstract class BaseActivity extends Activity implements PlaybackController.Callback {
 
+    protected PlaybackController mPlaybackController;
     private ShareActionProvider mShareActionProvider;
     protected Context mContext;
 
@@ -38,6 +39,7 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        mPlaybackController = PlaybackController.getInstance();
         if (savedInstanceState != null) {
             isTrackPlaying = savedInstanceState.getBoolean(IS_TRACK_PLAYING);
         }
@@ -47,7 +49,7 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
     protected void onStart() {
         super.onStart();
         mContext = getApplicationContext();
-        PlaybackController.getInstance().registerCallback(this);
+        mPlaybackController.registerCallback(this);
     }
 
     @Override
@@ -74,8 +76,7 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
             startActivity(intent);
             return true;
         } else if (id == R.id.action_now_playing) {
-            PlaybackController playbackController = PlaybackController.getInstance();
-            displayMusicPlayer(playbackController.getTracks(), playbackController.getCurrentIndex());
+            displayMusicPlayer(mPlaybackController.getTracks(), mPlaybackController.getCurrentIndex());
         }
 
         return super.onOptionsItemSelected(item);
@@ -83,10 +84,9 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
 
     @Override
     public void onPlaybackStatusChange(String status) {
-        PlaybackController playbackController = PlaybackController.getInstance();
         if (status.equals(ACTION_PLAY)) {
             isTrackPlaying = true;
-            updateShareIntent(playbackController.getCurrentlyPlayingTrack());
+            updateShareIntent(mPlaybackController.getCurrentlyPlayingTrack());
         } else {
             isTrackPlaying = false;
         }
@@ -111,23 +111,8 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
     }
 
     protected void updateMenuItems() {
-        if (isTrackPlaying) {
-            displayMenuItems();
-        } else {
-            hideMenuItems();
-        }
-    }
-
-    protected void displayMenuItems() {
-        mNowPlayingMenuItem.setVisible(true);
-        mShareCurrentTrackMenuItem.setVisible(true);
-        isTrackPlaying = true;
-    }
-
-    protected void hideMenuItems() {
-        mNowPlayingMenuItem.setVisible(false);
-        mShareCurrentTrackMenuItem.setVisible(false);
-        isTrackPlaying = false;
+        mNowPlayingMenuItem.setVisible(isTrackPlaying);
+        mShareCurrentTrackMenuItem.setVisible(isTrackPlaying);
     }
 
     private void updateShareIntent(ArtistTopTrackItem currentlyPlayingTrack) {
@@ -148,6 +133,6 @@ public abstract class BaseActivity extends Activity implements PlaybackControlle
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        PlaybackController.getInstance().unregisterCallback(this);
+        mPlaybackController.unregisterCallback(this);
     }
 }
