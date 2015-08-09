@@ -25,7 +25,7 @@ import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants
 import static com.example.manuelsanchez.spotifystreamer.SpotifyStreamerConstants.TRACK_ITEMS;
 
 
-public class MusicPlayerService extends Service implements PlaybackController.OnCompletionCallback {
+public class MusicPlayerService extends Service implements PlaybackController.Callback {
 
     private static final String LOG_TAG = MusicPlayerService.class.getSimpleName();
 
@@ -35,7 +35,7 @@ public class MusicPlayerService extends Service implements PlaybackController.On
     public void onCreate() {
         super.onCreate();
         playbackController = PlaybackController.getInstance();
-        playbackController.setOnCompletionCallback(this);
+        playbackController.registerCallback(this);
         mediaNotificationManager = new MediaNotificationManager(this);
     }
 
@@ -123,7 +123,12 @@ public class MusicPlayerService extends Service implements PlaybackController.On
     }
 
     @Override
-    public void onCompletion(String status) {
+    public void onTrackChanged(int trackIndex) {
+
+    }
+
+    @Override
+    public void onPlaybackStatusChange(String status) {
         if (status.equals(ACTION_IDLE)) {
             this.stopSelf();
         }

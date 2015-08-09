@@ -27,7 +27,6 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     private ArrayList<ArtistTopTrackItem> tracks;
     private int currentIndex;
 
-    private OnCompletionCallback onCompletionCallback;
 
     private ArrayList<Callback> callBacks;
 
@@ -38,10 +37,6 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
         void onTrackChanged(int trackIndex);
 
         void onPlaybackStatusChange(String status);
-    }
-
-    public interface OnCompletionCallback {
-        void onCompletion(String status);
     }
 
     private PlaybackController() {
@@ -127,10 +122,6 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 //        }
 //    }
 
-    public void setOnCompletionCallback(OnCompletionCallback onCompletionCallback) {
-        this.onCompletionCallback = onCompletionCallback;
-    }
-
     private void initializeMediaPlayer() {
         isBuffering = true;
         if (mMediaPlayer != null) {
@@ -166,13 +157,13 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
     @Override
     public void onCompletion(MediaPlayer mediaPlayer) {
         if (currentIndex == tracks.size() - 1) {
-            onCompletionCallback.onCompletion(ACTION_IDLE);
             fireTrackChangeEvent(getCurrentIndex());
             fireStatusChangeEvent(ACTION_IDLE);
+            playbackState = PlaybackState.IDLE;
         } else {
             ++currentIndex;
             initializeMediaPlayer();
-            onCompletionCallback.onCompletion(ACTION_PLAY);
+            fireStatusChangeEvent(ACTION_PLAY);
             fireTrackChangeEvent(getCurrentIndex());
         }
     }
@@ -224,6 +215,10 @@ public class PlaybackController implements MediaPlayer.OnPreparedListener,
 
     public int getCurrentPosition() {
         return mMediaPlayer.getCurrentPosition();
+    }
+
+    public boolean isPlaying() {
+        return mMediaPlayer.isPlaying();
     }
 
     public int getDuration() {
