@@ -5,6 +5,6 @@ Built an android app, optimized for tablet, that displays an artist's top 10 tra
 
 
 ![alt tag](https://github.com/manl1100/spotify-streamer/blob/master/assets/Screenshot_20160515-195721.png)
-![alt tag](https://github.com/manl1100/spotify-streamer/blob/master/assets/Screenshot_20160515-201106.png)
-![alt tag](https://github.com/manl1100/spotify-streamer/blob/master/assets/Screenshot_20160515-201111.png)
-![alt tag](https://github.com/manl1100/spotify-streamer/blob/master/assets/Screenshot_20160515-201117.png)
+![alt tag](https://github.com/manl1100/spotify-streamer/blob/master/assets/screenshot_20160515-201106.png)
+![alt tag](https://github.com/manl1100/spotify-streamer/blob/master/assets/screenshot_20160515-201111.png)
+![alt tag](https://github.com/manl1100/spotify-streamer/blob/master/assets/screenshot_20160515-201117.png)
